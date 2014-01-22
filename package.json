@@ -1,0 +1,47 @@
+{
+  "name": "taylor-editor",
+  "version": "0.0.0",
+  "homepage": "http://taylor-editor.herokuapp.com",
+  "author": "ishmaelthedestroyer",
+  "engines": {
+    "node": "0.10.15"
+  },
+  "description": "Markdown editor for Bootstrap 3.0.",
+  "main": "./js/taylor.js",
+  "repository": "",
+  "keywords": [
+    "markdown",
+    "bootstrap"
+  ],
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": ""
+    }
+  ],
+  "dependencies": {
+  },
+  "devDependencies": {
+    "grunt": "~0.4.1",
+    "grunt-recess": "~0.3.0",
+    "grunt-contrib-clean": "~0.4.1",
+    "grunt-contrib-copy": "~0.4.0",
+    "grunt-contrib-jshint": "~0.4.3",
+    "grunt-contrib-concat": "~0.3.0",
+    "grunt-contrib-watch": "~0.4.0",
+    "grunt-contrib-uglify": "~0.2.0",
+    "grunt-karma": "~0.5.0",
+    "grunt-ngmin": "~0.0.2",
+    "grunt-html2js": "~0.1.3",
+    "grunt-contrib-coffee": "~0.7.0",
+    "grunt-coffeelint": "~0.0.6",
+    "grunt-coffeecup": "~0.1.0",
+    "grunt-conventional-changelog": "~0.1.1",
+    "grunt-bump": "~0.0.6",
+    "load-grunt-tasks": "~0.2.0",
+    "grunt-concurrent": "~0.4.2",
+    "grunt-nodemon": "~0.1.2",
+    "grunt-mkdir": "~0.1.1",
+    "grunt-todos": "~0.2.0"
+  }
+}
