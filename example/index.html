@@ -1,7 +1,105 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <title>Taylor Editor</title>
+  <link media='screen' rel='stylesheet' href='../dist/vendor/bootstrap/dist/css/bootstrap.css' />
+  <link media='screen' rel='stylesheet' href='../dist/css/taylor.css' />
+  <link media='screen' rel='stylesheet' href='css/example.css' />
+  <script src='../dist/vendor/jquery/jquery.js'></script>
+  <script src='../dist/vendor/bootstrap/dist/js/bootstrap.js'></script>
+  <script src='../dist/js/taylor.js'></script>
+  <script src='js/example.js'></script>
 </head>
 <body>
+
+<div class='container header'>
+  <div class='row'>
+    <div class='clear-50'></div>
+    <h1 class='text-white text-center'>
+    Taylor
+    <br />
+    <span style='font-size: 18pt;'>Bootstrap 3.0 HTML Editor</span>
+    <div class='clear'></div>
+    <a href='http://ishmaelthedestroyer.com' target='_blank'><small>ishmaelthedestroyer</small></a>
+    </h1>
+  </div>
+</div>
+
+<div class='clear-50'></div>
+
+<div class='container'>
+  <div class='row'>
+
+    <p class='lead'>Dependencies</p>
+
+    <p>Taylor requires the Bootstrap 3.0 CSS as well as the included CSS and Javascript files. Taylor does <b>NOT</b> depend on jQuery. Add the dependencies in the head of your document like so: </p>
+
+    <pre>
+< link media='screen' rel='stylesheet' href='/path/to/bootstrap.css' />
+< link media='screen' rel='stylesheet' href='/path/to/taylor.css' />
+< script src='/path/to/taylor.js'>< /script >
+    </pre>
+
+
+    <div class='clear-50'></div>
+
+    <p class='lead'>Markup</p>
+
+    <pre>
+< div id='target' >< /div >
+    </pre>
+
+
+
+    <div class='clear-50'></div>
+
+    <p class='lead'>Javascript (Initialize)</p>
+
+    <pre>
+< script >
+  var editor = new Taylor('target', {
+    width: '400px'
+    rows: 10
+  });
+< /script >
+    </pre>
+
+
+    <div class='clear-50'></div>
+
+    <p class='lead'>Properties</p>
+
+    <table class='table table-hover'>
+      <thead>
+        <th width='20%'>Attribute</th>
+        <th width='40%'>Description</th>
+        <th width='40%'>Default</th>
+      </thead>
+      <tbody>
+        <tr>
+          <td><b>Width</b></td>
+          <td>How wide the editor is (takes percentage or pixels.</td>
+          <td>100%</td>
+        </tr>
+        <tr>
+          <td><b>Rows</b></td>
+          <td>How many rows (vertical) tall the text area is.</td>
+          <td>10</td>
+        </tr>
+      </tbody>
+    </table>
+
+
+
+    <div class='clear-50'></div>
+
+    <p class='lead'>Example</p>
+
+    <div id='target'></div>
+
+
+  </div>
+</div>
+
 </body>
 </html>

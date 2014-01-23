@@ -38,7 +38,7 @@ module.exports = (grunt) ->
       html: [
       ]
       css: [
-        'css/style.css'
+        'css/taylor.css'
       ]
       favicon: [
         'favicon.ico'
@@ -105,7 +105,6 @@ module.exports = (grunt) ->
       client:
         files: [
           '<%= files.client %>'
-          '<%= files.html %>'
         ]
         tasks: [
           'build:client'
@@ -197,9 +196,9 @@ module.exports = (grunt) ->
         ]
       assets:
         src: [
-          '<%= dir.dist %>public/assets/css/fonts/**'
-          '<%= dir.dist %>public/assets/img/'
-          '<%= dir.dist %>public/favicon.ico'
+          '<%= dir.dist %>css/fonts/**'
+          '<%= dir.dist %>img/'
+          '<%= dir.dist %>favicon.ico'
         ]
 
     mkdir:
@@ -232,7 +231,7 @@ module.exports = (grunt) ->
           src: [
             '<%= files.img %>'
           ]
-          dest: '<%= dir.dist %>public/assets/img/'
+          dest: '<%= dir.dist %>img/'
           cwd: '.'
           expand: true
           flatten: true
@@ -242,7 +241,7 @@ module.exports = (grunt) ->
           src: [
             '<%= files.favicon %>'
           ]
-          dest: '<%= dir.dist %>public/'
+          dest: '<%= dir.dist %>'
           cwd: '.'
           expand: true
           flatten: true
@@ -304,7 +303,7 @@ module.exports = (grunt) ->
         src: [
           '<%= files.css %>'
         ]
-        dest: '<%= dir.dist %>public/assets/css/app.css'
+        dest: '<%= dir.dist %>css/taylor.css'
         options:
           compile: true
           compress: false

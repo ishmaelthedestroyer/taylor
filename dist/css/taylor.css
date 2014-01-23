@@ -1,0 +1,22 @@
+.taylor ul.nav.navbar-nav li {
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  padding: 6px 8px;
+  margin: 0px 10px 0 10px;
+  font-size: 14px;
+  font-weight: normal;
+  line-height: 1.428571429;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: middle;
+  cursor: pointer;
+  background-image: none;
+  border-radius: 4px;
+  -webkit-transition: all 0.2s ease-in-out;
+          transition: all 0.2s ease-in-out;
+}
+
+.taylor ul.nav.navbar-nav li:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
