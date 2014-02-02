@@ -19,8 +19,26 @@
     Taylor
     <br />
     <span style='font-size: 18pt;'>Bootstrap 3.0 HTML Editor</span>
-    <div class='clear'></div>
-    <a href='http://ishmaelthedestroyer.com' target='_blank'><small>ishmaelthedestroyer</small></a>
+      <div class='clear'></div>
+      <span>
+      <a href='http://ishmaelthedestroyer.com' target='_blank' style='display: inline-block;'>
+        <small>ishmaelthedestroyer</small>
+      </a>
+      <ul class='social-icons' style='display: inline-block;'>
+        <li>
+          <a href='#' class='social_facebook'></a>
+        </li>
+        <li>
+          <a href='#' class='social_twitter'></a>
+        </li>
+        <li>
+          <a href='#' class='social_googleplus'></a>
+        </li>
+        <li>
+          <a href='#' class='social_github'></a>
+        </li>
+      </ul>
+      </span>
     </h1>
   </div>
 </div>
@@ -34,20 +52,17 @@
 
     <p>Taylor requires the Bootstrap 3.0 CSS as well as the included CSS and Javascript files. Taylor does <b>NOT</b> depend on jQuery. Add the dependencies in the head of your document like so: </p>
 
-    <pre>
-< link media='screen' rel='stylesheet' href='/path/to/bootstrap.css' />
-< link media='screen' rel='stylesheet' href='/path/to/taylor.css' />
-< script src='/path/to/taylor.js'>< /script >
-    </pre>
+
+<pre>&lt;link media='screen' rel='stylesheet' href='/path/to/bootstrap.css' />
+&lt;link media='screen' rel='stylesheet' href='/path/to/taylor.css' />
+&lt;script src='/path/to/taylor.js'&gt;&lt;/script&gt;</pre>
 
 
     <div class='clear-50'></div>
 
     <p class='lead'>Markup</p>
 
-    <pre>
-< div id='target' >< /div >
-    </pre>
+<pre>&lt;div id='target'&gt;&lt;/div&gt;</pre>
 
 
 
@@ -55,14 +70,12 @@
 
     <p class='lead'>Javascript (Initialize)</p>
 
-    <pre>
-< script >
+<pre>&lt;script&gt;
   var editor = new Taylor('target', {
     width: '400px'
     rows: 10
   });
-< /script >
-    </pre>
+&lt;/script&gt;</pre>
 
 
     <div class='clear-50'></div>
@@ -78,7 +91,7 @@
       <tbody>
         <tr>
           <td><b>Width</b></td>
-          <td>How wide the editor is (takes percentage or pixels.</td>
+          <td>Width of the editor is (takes percentage or pixels).</td>
           <td>100%</td>
         </tr>
         <tr>

@@ -180,10 +180,9 @@ module.exports = function(grunt) {
         files: [
           {
             src: ['<%= files.img %>'],
-            dest: '<%= dir.dist %>img/',
+            dest: '<%= dir.dist %>',
             cwd: '.',
-            expand: true,
-            flatten: true
+            expand: true
           }
         ]
       },

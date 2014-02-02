@@ -231,10 +231,9 @@ module.exports = (grunt) ->
           src: [
             '<%= files.img %>'
           ]
-          dest: '<%= dir.dist %>img/'
+          dest: '<%= dir.dist %>'
           cwd: '.'
           expand: true
-          flatten: true
         ]
       favicon:
         files: [

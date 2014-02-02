@@ -27,3 +27,44 @@
 .text-center {
   text-align: center;
 }
+
+
+
+
+.social-media {
+  width: auto;
+  height: 30px;
+  margin-top: 18px;
+  overflow: hidden;
+}
+.social-icons {
+  margin: 0 auto !important;
+  padding: 0 !important;
+  width: 155px;
+  height: auto;
+}
+.social-icons li {
+  float:left;
+  display:inline;
+  list-style:none;
+  margin: 10px 10px 0 0 !important;
+}
+.social-icons li a, a.social-icon {
+  width:28px;
+  height:28px;
+  display:block;
+  background-position:0 0;
+  background-repeat:no-repeat;
+  transition: all 0.3s ease-in-out;
+  -o-transition: all 0.3s ease-in-out;
+  -ms-transition: all 0.3s ease-in-out;
+  -moz-transition: all 0.3s ease-in-out;
+  -webkit-transition: all 0.3s ease-in-out;
+}
+.social-icons li:hover a {
+  background-position:0 -38px;
+}
+.social_facebook {background: url(../img/social/facebook.png) no-repeat;}
+.social_github {background: url(../img/social/github.png) no-repeat;}
+.social_googleplus {background: url(../img/social/googleplus.png) no-repeat;}
+.social_twitter {background: url(../img/social/twitter.png) no-repeat;}
