@@ -550,7 +550,7 @@ Taylor::_bindButtons = () ->
   # bind events to buttons
   bindButton @_bold, 'bold'
   bindButton @_italic, 'italic'
-  bindButton @_header, 'header1'
+  bindButton @_header, 'h1'
 
   return @
 
