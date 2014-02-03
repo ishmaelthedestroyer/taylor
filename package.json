@@ -6,7 +6,7 @@
   "engines": {
     "node": "0.10.15"
   },
-  "description": "Markdown editor for Bootstrap 3.0.",
+  "description": "HTML editor using Bootstrap 3.0 and Font Awesome.",
   "main": "./js/taylor.js",
   "repository": "",
   "keywords": [
