@@ -21,6 +21,15 @@
 
   # Basic Helper Functions
 
+  trim = (text) ->
+    return text.replace /^\s+|\s+$/g,""
+
+  nl2br = (str) ->
+    return str.replace /\n/g, '<br />'
+
+  br2nl = (str) ->
+    return str.replace /<br\s*\/?>/mg,'\n'
+
   extend = (one, two) ->
     # make sure valid objects
     return {} if !one
@@ -34,6 +43,8 @@
 
     # return object
     return one
+
+  # # # # # # # # # #
 
   saveSelection = () ->
     sel = window.getSelection()
@@ -50,6 +61,8 @@
 
     return null
 
+  # # # # # # # # # #
+
   restoreSelection = (saved) ->
     sel = window.getSelection()
     if saved
@@ -61,6 +74,8 @@
         sel.addRange saved[i]
         ++i
 
+  # # # # # # # # # #
+
   getSelectionStart = () ->
     node = document.getSelection().anchorNode
 
@@ -70,6 +85,19 @@
       startNode = node
 
     return startNode
+
+  # # # # # # # # # #
+
+  getSelectionText = () ->
+    text = ""
+    if window.getSelection
+      text = window.getSelection().toString()
+    else
+      if document.selection and document.selection.type isnt "Control"
+        text = document.selection.createRange().text
+    return text
+
+  # # # # # # # # # #
 
   getSelectionHtml = () ->
     html = ''
@@ -91,6 +119,44 @@
         html = document.selection.createRange().htmlText
 
     return html
+
+  # # # # # # # # # #
+
+  setSelectedRange = (element, start, end) ->
+    # set focus on element
+    element.focus()
+
+    if element.setSelectionRange
+      element.setSelectionRange start, end
+    else
+      if element.createTextRange
+        normalizedVal = element.value.replace /\r\n/g, "\n"
+
+        start -= normalizedVal.slice(0, start).split("\n").length - 1
+        end -= normalizedVal.slice(0, end).split("\n").length - 1
+
+        range = element.createTextRange()
+        range.collapse true
+        range.moveEnd 'character', end
+        range.moveStart 'character', start
+        range.select()
+
+  # # # # # # # # # #
+
+  isListItemChild = (node) ->
+    parentNode = node.parentNode
+    tagName = parentNode.tagName.toLowerCase()
+
+    while parentElements.indexOf(tagName) is -1 and tagName isnt 'div'
+      return true if tagName is 'li'
+
+      parentNode = parentNode.parentNode
+      if parentNode and parentNode.tagName
+        tagName = parentNode.tagName.toLowerCase()
+      else
+        return false
+
+    return false
 
   # # # # # # # # # # # # # # # # # # # #
   # # # # # # # # # # # # # # # # # # # #
@@ -174,11 +240,26 @@
 
   # # # # # # # # # #
 
-  triggerAnchorAction = () ->
+  triggerAnchorAction = (targetBlank) ->
     if selection.anchorNode.parentNode.tagName.toLowerCase() is 'a'
       document.execCommand 'unlink', false, null
     else
-      console.log 'TODO: anchors'
+      document.execCommand 'createLink', false, getSelectionText()
+      setTargetBlank() if targetBlank
+
+  # # # # # # # # # #
+
+  setTargetBlank = () ->
+    element = getSelectionStart()
+
+    if element.tagName.toLowerCase() is "a"
+      element.target = "_blank"
+    else
+      element = element.getElementsByTagName 'a'
+      i = 0
+      while i < element.length
+        element[i].target = "_blank"
+        ++i
 
   # # # # # # # # # #
 
@@ -193,6 +274,7 @@
     obj._container.className += ' taylor-editor'
     obj._container.className += ' panel'
     obj._container.className += ' panel-default'
+    obj._container.style.width = obj._options.width
 
     # # # # #
 
@@ -213,8 +295,21 @@
 
     # # # # #
 
+    tools = document.createElement 'ul'
+    tools.className = 'nav'
+    tools.className += ' navbar-nav'
+    tools.className += ' navbar-right'
+    tools.className += ' taylor-tools'
+
+    heading.appendChild tools
+
+    # # # # #
+
     # create buttons and insert into heading
     obj._buttons = createButtons controls, obj._options.buttons
+
+    # create tools and insert into heading
+    obj._tools = createTools tools, obj._options.tools
 
     # clear-fix
     clear = document.createElement 'div'
@@ -224,10 +319,12 @@
 
     # # # # #
 
+    ###
     # add panel body
     body = document.createElement 'div'
     body.className = 'panel-body'
-    body.style.height = 'auto'
+    body.className += ' taylor-body'
+    body.style.height = obj._options.height
     body.style.padding = 0
     body.style.margin = 0
 
@@ -239,10 +336,38 @@
     editable.className = 'taylor-editable'
     editable.className += ' form-control'
     editable.setAttribute 'data-taylor-editable', true
-    editable.style.height = '100%'
     editable.contentEditable = true
+    editable.innerHTML = obj._HTML
+    editable.style.height = 'auto'
 
     body.appendChild editable
+    ###
+
+    # # # # #
+
+    # add panel body
+    body = obj._editable = document.createElement 'div'
+    body.className = 'panel-body'
+    body.className += ' form-control'
+    body.className += ' taylor-editable'
+    body.setAttribute 'data-taylor-editable', true
+    body.style.height = obj._options.height
+    body.contentEditable = true
+    body.innerHTML = obj._HTML
+
+    obj._container.appendChild body
+
+    # # # # #
+
+    # add panel body
+    textarea = obj._editable = document.createElement 'textarea'
+    textarea.className = 'textarea'
+    textarea.className += ' form-control'
+    textarea.className += ' taylor-textarea'
+    textarea.style.height = obj._options.height
+    textarea.style.display = 'none'
+
+    obj._container.appendChild textarea
 
     # # # # #
 
@@ -366,6 +491,7 @@
 
       btn = document.createElement 'button'
       btn.className = 'taylor-btn'
+      btn.className += ' taylor-btn-' + template.name
       btn.setAttribute 'data-taylor-btn-action', template.action
       li.appendChild btn
 
@@ -387,6 +513,51 @@
 
   # # # # # # # # # #
 
+  createTools = (parent, tools) ->
+    console.log 'Creating tools.'
+
+    templates =
+      preview:
+        name: 'preview'
+        action: 'preview'
+        class: 'fa fa-eye'
+        content: ''
+      help:
+        name: 'help'
+        action: 'help'
+        class: 'fa fa-question'
+        content: ''
+
+    createTool = (template) ->
+      console.log 'Creating tool.', template
+
+      li = document.createElement 'li'
+      parent.appendChild li
+
+      btn = document.createElement 'button'
+      btn.className = 'taylor-btn'
+      btn.className += ' taylor-tool-' + template.name
+      btn.setAttribute 'data-taylor-btn-action', template.action
+      li.appendChild btn
+
+      span = document.createElement 'span'
+      span.className = template.class
+      span.innerHTML = template.content || ''
+      btn.appendChild span
+
+      template.element = btn
+
+      return template
+
+    elements = []
+
+    for k in tools
+      elements.push createTool(templates[k])
+
+    return elements
+
+  # # # # # # # # # #
+
   bindButtons = (obj, buttons) ->
     for btn in buttons
       ((btn) ->
@@ -397,12 +568,12 @@
           e.preventDefault()
           e.stopPropagation()
 
-          checkSelection() if !obj._selection
+          checkSelection() if selection
 
           if btn.action.indexOf('append-') > -1
             execFormatBlock btn.action.replace('append-', '')
           else if btn.action is 'anchor'
-            triggerAnchorAction e
+            triggerAnchorAction obj._options.targetBlank
           else if btn.action is 'image'
             document.execCommand 'insertImage', false, window.getSelection()
           else
@@ -412,6 +583,18 @@
       ) btn
 
     return
+
+  # # # # # # # # # #
+
+  bindTools = (obj, tools) ->
+    for tool in tools
+      ((tool) ->
+        console.log 'Binding tool.', tool
+
+        if tool.action is 'preview'
+          tool.element.addEventListener 'click', () ->
+            preview obj
+      ) tool
 
   # # # # # # # # # #
 
@@ -437,11 +620,99 @@
 
   # # # # # # # # # #
 
+  bindPaste = (element, disableReturn) ->
+    console.log 'bindPaste() fired.'
+
+    wrapper = (e) ->
+      console.log 'Taylor _bindPaste eventListener fired.'
+
+      html = ''
+      element.classList.remove 'taylor-editor-placeholder'
+      if e.clipboardData and e.clipboardData.getData
+        e.preventDefault()
+        if disableReturn
+          paragraphs = e.clipboardData.getData('text/plain').split /[\r\n]/g
+          i = 0
+          while i < paragraphs.length
+            if paragraphs[i] isnt ''
+              html += '<p>' + paragraphs[i] + '</p>'
+            ++i
+          document.execCommand 'insertHTML', false, html
+        else
+          document.execCommand 'insertHTML', false,
+          e.clipboardData.getData 'text/plain'
+
+    element.addEventListener 'paste', wrapper
+
+    return @
+
+  # # # # # # # # # #
+
+  bindFormatting = (element, disableReturn) ->
+    console.log 'bindFormatting() fired.'
+
+    element.addEventListener 'keyup', (e) ->
+      node = getSelectionStart()
+
+      if node and node.getAttribute 'data-taylor-editable' and
+      !node.children.length and !disableReturn
+        document.execCommand 'formatBlock', false, 'p'
+
+      if e.which is 13 and !e.shiftKey
+        node = getSelectionStart()
+        tagName = node.tagName.toLowerCase()
+
+        if !disableReturn and
+        tagName isnt 'li' and !isListItemChild node
+          document.execCommand 'formatBlock', false, 'p'
+
+          if tagName is 'a'
+            document.execCommand 'unlink', false, null
+
+    return @
+
+  # # # # # # # # # #
+
+  bindTab = (element) ->
+    console.log 'bindTab() fired.'
+
+    element.addEventListener 'keydown', (e) ->
+      if e.which is 9
+        console.log 'bindTab event listener fired.'
+
+        e.preventDefault()
+
+        # override tab for pre nodes
+        tag = getSelectionStart().tagName.toLowerCase()
+        if tag is 'pre'
+          document.execCommand 'insertHTML', null, '    '
+        else
+          document.execCommand 'insertHTML', null, '&nbsp;&nbsp;&nbsp;&nbsp;'
+    return @
+
+  # # # # # # # # # #
+
+  bindReturn = (element, disableReturn) ->
+    console.log 'bindReturn() fired.'
+
+    element.addEventListener 'keypress', (e) ->
+      if e.which is 13
+        if disableReturn || element.getAttribute 'data-disable-return'
+          e.preventDefault()
+
+    return @
+
+  # # # # # # # # # #
+
   initialize = (obj, options) ->
     if !obj._container
       return throw new Error 'Taylor target element does not exist!'
 
+    console.log options
+
     defaults =
+      width: '100%'
+      height: '500px'
       placeholder: '...'
       anchorPlaceholder: 'Type a URL'
       buttons: [
@@ -457,12 +728,17 @@
         'anchor'
         'image'
       ]
-      targetBlank: false
+      tools: [
+        'preview'
+        # 'help'
+      ]
+      disableReturn: false
+      targetBlank: true
       delay: 0
       sticky: false
 
     # extend options, override defaults
-    obj._options = extend options, defaults
+    obj._options = extend defaults, options
 
     console.log 'Got options.', obj._options
 
@@ -470,12 +746,46 @@
 
     createElements obj
     bindButtons obj, obj._buttons || []
+    bindTools obj, obj._tools || []
     bindSelect obj._container, obj._options.delay
-    bindPaste obj._container
+    bindPaste obj._container, obj._options.disableReturn
+    bindFormatting obj._container, obj._options.disableReturn
+    bindTab obj._container
+    bindReturn obj._container
 
     # # # # #
 
     return @
+
+  # # # # # # # # # # # # # # # # # # # #
+  # # # # # # # # # # # # # # # # # # # #
+
+  # Functions to bind to Taylor
+
+  preview = (obj) ->
+    console.log 'Firing preview function.'
+    editable = obj._container.getElementsByClassName('taylor-editable')[0]
+    textarea = obj._container.getElementsByClassName('taylor-textarea')[0]
+    previewBtn = obj._container.getElementsByClassName('taylor-tool-preview')[0]
+    previewIcon = previewBtn.getElementsByClassName('fa')[0]
+
+    if editable.style.display isnt 'none'
+      editable.style.display = 'none'
+      textarea.style.display = ''
+      textarea.value = br2nl editable.innerHTML
+      previewIcon.classList.remove 'fa-eye'
+      previewIcon.classList.add 'fa-eye-slash'
+    else
+      editable.style.display = ''
+      textarea.style.display = 'none'
+      editable.innerHTML = nl2br textarea.value
+      previewIcon.classList.add 'fa-eye'
+      previewIcon.classList.remove 'fa-eye-slash'
+
+  # # # # # # # # # #
+
+  getHTML = (obj) ->
+
 
   # # # # # # # # # # # # # # # # # # # #
   # # # # # # # # # # # # # # # # # # # #
@@ -488,10 +798,22 @@
 
     # find element, bind to object
     @_container = document.getElementById container
+    @_HTML = trim @_container.innerHTML
+    @_editable = null
     @_buttons = []
+
+    # set empty paragraph tags if empty container
+    @_HTML = '<p></p>' if !@_HTML.length
+
+    # clear the container's inner html since it is now saved
+    @_container.innerHTML = ''
 
     # initialize
     initialize @, options || {}
+
+    # get editable and focus on it
+    editable = @_container.getElementsByClassName('taylor-editable')[0]
+    setSelectedRange editable, 0, 0
 
     return @
 

@@ -31,7 +31,15 @@
   background-color: rgba(0, 0, 0, 0.4) !important;
 }
 
-.taylor-preview {
+.taylor-editable,
+.taylor-textarea {
   width: 100%;
-  height: auto;
+  height: 100%;
+  border-top-right-radius: 0px;
+  border-top-left-radius: 0px;
+}
+
+.taylor-body {
+  overflow-x: hidden;
+  overflow-y: auto;
 }

@@ -2,10 +2,19 @@ var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; 
 
 (function(window, document) {
   'use strict';
-  var Taylor, bindButtons, bindSelect, checkSelection, checkSelectionElement, createButtons, createElements, execFormatBlock, extend, getSelectionData, getSelectionElement, getSelectionHtml, getSelectionStart, initialize, parentElements, restoreSelection, saveSelection, selection, selectionRange, triggerAnchorAction;
+  var Taylor, bindButtons, bindFormatting, bindPaste, bindReturn, bindSelect, bindTab, bindTools, br2nl, checkSelection, checkSelectionElement, createButtons, createElements, createTools, execFormatBlock, extend, getHTML, getSelectionData, getSelectionElement, getSelectionHtml, getSelectionStart, getSelectionText, initialize, isListItemChild, nl2br, parentElements, preview, restoreSelection, saveSelection, selection, selectionRange, setSelectedRange, setTargetBlank, triggerAnchorAction, trim;
   selection = null;
   selectionRange = null;
   parentElements = ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'pre'];
+  trim = function(text) {
+    return text.replace(/^\s+|\s+$/g, "");
+  };
+  nl2br = function(str) {
+    return str.replace(/\n/g, '<br />');
+  };
+  br2nl = function(str) {
+    return str.replace(/<br\s*\/?>/mg, '\n');
+  };
   extend = function(one, two) {
     var k, keys, _i, _len;
     if (!one) {
@@ -61,6 +70,18 @@ var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; 
     }
     return startNode;
   };
+  getSelectionText = function() {
+    var text;
+    text = "";
+    if (window.getSelection) {
+      text = window.getSelection().toString();
+    } else {
+      if (document.selection && document.selection.type !== "Control") {
+        text = document.selection.createRange().text;
+      }
+    }
+    return text;
+  };
   getSelectionHtml = function() {
     var container, html, i, len, sel;
     html = '';
@@ -82,6 +103,41 @@ var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; 
       }
     }
     return html;
+  };
+  setSelectedRange = function(element, start, end) {
+    var normalizedVal, range;
+    element.focus();
+    if (element.setSelectionRange) {
+      return element.setSelectionRange(start, end);
+    } else {
+      if (element.createTextRange) {
+        normalizedVal = element.value.replace(/\r\n/g, "\n");
+        start -= normalizedVal.slice(0, start).split("\n").length - 1;
+        end -= normalizedVal.slice(0, end).split("\n").length - 1;
+        range = element.createTextRange();
+        range.collapse(true);
+        range.moveEnd('character', end);
+        range.moveStart('character', start);
+        return range.select();
+      }
+    }
+  };
+  isListItemChild = function(node) {
+    var parentNode, tagName;
+    parentNode = node.parentNode;
+    tagName = parentNode.tagName.toLowerCase();
+    while (parentElements.indexOf(tagName) === -1 && tagName !== 'div') {
+      if (tagName === 'li') {
+        return true;
+      }
+      parentNode = parentNode.parentNode;
+      if (parentNode && parentNode.tagName) {
+        tagName = parentNode.tagName.toLowerCase();
+      } else {
+        return false;
+      }
+    }
+    return false;
   };
   checkSelection = function() {
     var newSelection, selectionElement;
@@ -153,19 +209,39 @@ var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; 
     }
     return document.execCommand('formatBlock', false, type);
   };
-  triggerAnchorAction = function() {
+  triggerAnchorAction = function(targetBlank) {
     if (selection.anchorNode.parentNode.tagName.toLowerCase() === 'a') {
       return document.execCommand('unlink', false, null);
     } else {
-      return console.log('TODO: anchors');
+      document.execCommand('createLink', false, getSelectionText());
+      if (targetBlank) {
+        return setTargetBlank();
+      }
+    }
+  };
+  setTargetBlank = function() {
+    var element, i, _results;
+    element = getSelectionStart();
+    if (element.tagName.toLowerCase() === "a") {
+      return element.target = "_blank";
+    } else {
+      element = element.getElementsByTagName('a');
+      i = 0;
+      _results = [];
+      while (i < element.length) {
+        element[i].target = "_blank";
+        _results.push(++i);
+      }
+      return _results;
     }
   };
   createElements = function(obj) {
-    var body, clear, controls, editable, heading;
+    var body, clear, controls, heading, textarea, tools;
     console.log('Creating elements.', obj);
     obj._container.className += ' taylor-editor';
     obj._container.className += ' panel';
     obj._container.className += ' panel-default';
+    obj._container.style.width = obj._options.width;
     heading = document.createElement('div');
     heading.className = 'panel-heading';
     heading.style.height = 'auto';
@@ -175,23 +251,57 @@ var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; 
     controls.className += ' navbar-nav';
     controls.className += ' taylor-controls';
     heading.appendChild(controls);
+    tools = document.createElement('ul');
+    tools.className = 'nav';
+    tools.className += ' navbar-nav';
+    tools.className += ' navbar-right';
+    tools.className += ' taylor-tools';
+    heading.appendChild(tools);
     obj._buttons = createButtons(controls, obj._options.buttons);
+    obj._tools = createTools(tools, obj._options.tools);
     clear = document.createElement('div');
     clear.style.clear = 'both';
     heading.appendChild(clear);
-    body = document.createElement('div');
+    /*
+    # add panel body
+    body = document.createElement 'div'
+    body.className = 'panel-body'
+    body.className += ' taylor-body'
+    body.style.height = obj._options.height
+    body.style.padding = 0
+    body.style.margin = 0
+    
+    obj._container.appendChild body
+    
+    # # # # #
+    
+    editable = document.createElement 'div'
+    editable.className = 'taylor-editable'
+    editable.className += ' form-control'
+    editable.setAttribute 'data-taylor-editable', true
+    editable.contentEditable = true
+    editable.innerHTML = obj._HTML
+    editable.style.height = 'auto'
+    
+    body.appendChild editable
+    */
+
+    body = obj._editable = document.createElement('div');
     body.className = 'panel-body';
-    body.style.height = 'auto';
-    body.style.padding = 0;
-    body.style.margin = 0;
+    body.className += ' form-control';
+    body.className += ' taylor-editable';
+    body.setAttribute('data-taylor-editable', true);
+    body.style.height = obj._options.height;
+    body.contentEditable = true;
+    body.innerHTML = obj._HTML;
     obj._container.appendChild(body);
-    editable = document.createElement('div');
-    editable.className = 'taylor-editable';
-    editable.className += ' form-control';
-    editable.setAttribute('data-taylor-editable', true);
-    editable.style.height = '100%';
-    editable.contentEditable = true;
-    body.appendChild(editable);
+    textarea = obj._editable = document.createElement('textarea');
+    textarea.className = 'textarea';
+    textarea.className += ' form-control';
+    textarea.className += ' taylor-textarea';
+    textarea.style.height = obj._options.height;
+    textarea.style.display = 'none';
+    obj._container.appendChild(textarea);
     return obj;
   };
   createButtons = function(parent, buttons) {
@@ -324,6 +434,7 @@ var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; 
       parent.appendChild(li);
       btn = document.createElement('button');
       btn.className = 'taylor-btn';
+      btn.className += ' taylor-btn-' + template.name;
       btn.setAttribute('data-taylor-btn-action', template.action);
       li.appendChild(btn);
       span = document.createElement('span');
@@ -340,6 +451,47 @@ var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; 
     }
     return elements;
   };
+  createTools = function(parent, tools) {
+    var createTool, elements, k, templates, _i, _len;
+    console.log('Creating tools.');
+    templates = {
+      preview: {
+        name: 'preview',
+        action: 'preview',
+        "class": 'fa fa-eye',
+        content: ''
+      },
+      help: {
+        name: 'help',
+        action: 'help',
+        "class": 'fa fa-question',
+        content: ''
+      }
+    };
+    createTool = function(template) {
+      var btn, li, span;
+      console.log('Creating tool.', template);
+      li = document.createElement('li');
+      parent.appendChild(li);
+      btn = document.createElement('button');
+      btn.className = 'taylor-btn';
+      btn.className += ' taylor-tool-' + template.name;
+      btn.setAttribute('data-taylor-btn-action', template.action);
+      li.appendChild(btn);
+      span = document.createElement('span');
+      span.className = template["class"];
+      span.innerHTML = template.content || '';
+      btn.appendChild(span);
+      template.element = btn;
+      return template;
+    };
+    elements = [];
+    for (_i = 0, _len = tools.length; _i < _len; _i++) {
+      k = tools[_i];
+      elements.push(createTool(templates[k]));
+    }
+    return elements;
+  };
   bindButtons = function(obj, buttons) {
     var btn, _fn, _i, _len;
     _fn = function(btn) {
@@ -347,13 +499,13 @@ var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; 
         console.log('Firing btn event.', btn.action);
         e.preventDefault();
         e.stopPropagation();
-        if (!obj._selection) {
+        if (selection) {
           checkSelection();
         }
         if (btn.action.indexOf('append-') > -1) {
           execFormatBlock(btn.action.replace('append-', ''));
         } else if (btn.action === 'anchor') {
-          triggerAnchorAction(e);
+          triggerAnchorAction(obj._options.targetBlank);
         } else if (btn.action === 'image') {
           document.execCommand('insertImage', false, window.getSelection());
         } else {
@@ -366,6 +518,22 @@ var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; 
       btn = buttons[_i];
       _fn(btn);
     }
+  };
+  bindTools = function(obj, tools) {
+    var tool, _i, _len, _results;
+    _results = [];
+    for (_i = 0, _len = tools.length; _i < _len; _i++) {
+      tool = tools[_i];
+      _results.push((function(tool) {
+        console.log('Binding tool.', tool);
+        if (tool.action === 'preview') {
+          return tool.element.addEventListener('click', function() {
+            return preview(obj);
+          });
+        }
+      })(tool));
+    }
+    return _results;
   };
   bindSelect = function(element, delay) {
     var doc, timer, wrapper;
@@ -384,34 +552,151 @@ var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; 
     element.addEventListener('blur', wrapper);
     return this;
   };
+  bindPaste = function(element, disableReturn) {
+    var wrapper;
+    console.log('bindPaste() fired.');
+    wrapper = function(e) {
+      var html, i, paragraphs;
+      console.log('Taylor _bindPaste eventListener fired.');
+      html = '';
+      element.classList.remove('taylor-editor-placeholder');
+      if (e.clipboardData && e.clipboardData.getData) {
+        e.preventDefault();
+        if (disableReturn) {
+          paragraphs = e.clipboardData.getData('text/plain').split(/[\r\n]/g);
+          i = 0;
+          while (i < paragraphs.length) {
+            if (paragraphs[i] !== '') {
+              html += '<p>' + paragraphs[i] + '</p>';
+            }
+            ++i;
+          }
+          return document.execCommand('insertHTML', false, html);
+        } else {
+          return document.execCommand('insertHTML', false, e.clipboardData.getData('text/plain'));
+        }
+      }
+    };
+    element.addEventListener('paste', wrapper);
+    return this;
+  };
+  bindFormatting = function(element, disableReturn) {
+    console.log('bindFormatting() fired.');
+    element.addEventListener('keyup', function(e) {
+      var node, tagName;
+      node = getSelectionStart();
+      if (node && node.getAttribute('data-taylor-editable' && !node.children.length && !disableReturn)) {
+        document.execCommand('formatBlock', false, 'p');
+      }
+      if (e.which === 13 && !e.shiftKey) {
+        node = getSelectionStart();
+        tagName = node.tagName.toLowerCase();
+        if (!disableReturn && tagName !== 'li' && !isListItemChild(node)) {
+          document.execCommand('formatBlock', false, 'p');
+          if (tagName === 'a') {
+            return document.execCommand('unlink', false, null);
+          }
+        }
+      }
+    });
+    return this;
+  };
+  bindTab = function(element) {
+    console.log('bindTab() fired.');
+    element.addEventListener('keydown', function(e) {
+      var tag;
+      if (e.which === 9) {
+        console.log('bindTab event listener fired.');
+        e.preventDefault();
+        tag = getSelectionStart().tagName.toLowerCase();
+        if (tag === 'pre') {
+          return document.execCommand('insertHTML', null, '    ');
+        } else {
+          return document.execCommand('insertHTML', null, '&nbsp;&nbsp;&nbsp;&nbsp;');
+        }
+      }
+    });
+    return this;
+  };
+  bindReturn = function(element, disableReturn) {
+    console.log('bindReturn() fired.');
+    element.addEventListener('keypress', function(e) {
+      if (e.which === 13) {
+        if (disableReturn || element.getAttribute('data-disable-return')) {
+          return e.preventDefault();
+        }
+      }
+    });
+    return this;
+  };
   initialize = function(obj, options) {
     var defaults;
     if (!obj._container) {
       throw new Error('Taylor target element does not exist!');
     }
+    console.log(options);
     defaults = {
+      width: '100%',
+      height: '500px',
       placeholder: '...',
       anchorPlaceholder: 'Type a URL',
       buttons: ['bold', 'italic', 'underline', 'strikethrough', 'h', 'orderedlist', 'unorderedlist', 'blockquote', 'pre', 'anchor', 'image'],
-      targetBlank: false,
+      tools: ['preview'],
+      disableReturn: false,
+      targetBlank: true,
       delay: 0,
       sticky: false
     };
-    obj._options = extend(options, defaults);
+    obj._options = extend(defaults, options);
     console.log('Got options.', obj._options);
     createElements(obj);
     bindButtons(obj, obj._buttons || []);
+    bindTools(obj, obj._tools || []);
     bindSelect(obj._container, obj._options.delay);
-    bindPaste(obj._container);
+    bindPaste(obj._container, obj._options.disableReturn);
+    bindFormatting(obj._container, obj._options.disableReturn);
+    bindTab(obj._container);
+    bindReturn(obj._container);
     return this;
   };
+  preview = function(obj) {
+    var editable, previewBtn, previewIcon, textarea;
+    console.log('Firing preview function.');
+    editable = obj._container.getElementsByClassName('taylor-editable')[0];
+    textarea = obj._container.getElementsByClassName('taylor-textarea')[0];
+    previewBtn = obj._container.getElementsByClassName('taylor-tool-preview')[0];
+    previewIcon = previewBtn.getElementsByClassName('fa')[0];
+    if (editable.style.display !== 'none') {
+      editable.style.display = 'none';
+      textarea.style.display = '';
+      textarea.value = br2nl(editable.innerHTML);
+      previewIcon.classList.remove('fa-eye');
+      return previewIcon.classList.add('fa-eye-slash');
+    } else {
+      editable.style.display = '';
+      textarea.style.display = 'none';
+      editable.innerHTML = nl2br(textarea.value);
+      previewIcon.classList.add('fa-eye');
+      return previewIcon.classList.remove('fa-eye-slash');
+    }
+  };
+  getHTML = function(obj) {};
   Taylor = function(container, options) {
+    var editable;
     if (!(this instanceof Taylor)) {
       return new Taylor(container, options);
     }
     this._container = document.getElementById(container);
+    this._HTML = trim(this._container.innerHTML);
+    this._editable = null;
     this._buttons = [];
+    if (!this._HTML.length) {
+      this._HTML = '<p></p>';
+    }
+    this._container.innerHTML = '';
     initialize(this, options || {});
+    editable = this._container.getElementsByClassName('taylor-editable')[0];
+    setSelectedRange(editable, 0, 0);
     return this;
   };
   return window.Taylor = Taylor;

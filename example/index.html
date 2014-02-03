@@ -27,16 +27,10 @@
       </a>
       <ul class='social-icons' style='display: inline-block;'>
         <li>
-          <a href='#' class='social_facebook'></a>
+          <a href='http://twitter.com/IshmaelsAlive' target='_blank' class='social_twitter'></a>
         </li>
         <li>
-          <a href='#' class='social_twitter'></a>
-        </li>
-        <li>
-          <a href='#' class='social_googleplus'></a>
-        </li>
-        <li>
-          <a href='#' class='social_github'></a>
+          <a href='http://github.com/ishmaelthedestroyer' target='_blank' class='social_github'></a>
         </li>
       </ul>
       </span>
@@ -49,15 +43,40 @@
 <div class='container'>
   <div class='row'>
 
+    <p class='lead'>About</p>
+
+    <p>Taylor is a lightweight HTML editor ( < 1000 lines) written in Coffeescript and compiled into Javascript for use on the web. It's open-source, MIT-licensed (do whatever the hell you want with it), but please consider contributing to the source code to help better it. The goal is to eventually eliminate all dependencies to make Taylor a standalone text-editor, use primarily targeted towards developers' blogs, hyper-text comment systems, and such.
+    <br /><br />
+    The source code can be found at <a href='http://github.com/ishmaelthedestroyer/taylor' target='_blank'>http://github.com/ishmaelthedestroyer/taylor</a>
+    <br />
+    The demo can be found at <a href='http://taylor-editor.herokuapp.com' target='_blank'>http://taylor-editor.herokuapp.com</a></p>
+
+    <div class='clear-50'></div>
+
+    <p class='lead'>TODO</p>
+
+    <ul>
+      <li>
+        <p>Documentation in the works.</p>
+      </li>
+      <li>
+        <p>Methods for importing + exporting text as well as utility functions for basic statistics.</p>
+      </li>
+      <li>
+        <p>Sticky utility bar that sticks to the top after scrolling past.</p>
+      </li>
+    </ul>
+
+    <div class='clear-50'></div>
+
     <p class='lead'>Dependencies</p>
 
-    <p>Taylor requires the Bootstrap 3.0 CSS as well as the included CSS and Javascript files. Taylor does <b>NOT</b> depend on jQuery. Add the dependencies in the head of your document like so: </p>
-
+    <p>Taylor requires the Bootstrap 3.0 and Font Awesome CSS + fonts, as well as the included CSS and Javascript files. Taylor does <b>NOT</b> depend on jQuery. Add the dependencies in the head of your document like so: </p>
 
 <pre>&lt;link media='screen' rel='stylesheet' href='/path/to/bootstrap.css' />
+&lt;link media='screen' rel='stylesheet' href='/path/to/font-awesome.css' />
 &lt;link media='screen' rel='stylesheet' href='/path/to/taylor.css' />
 &lt;script src='/path/to/taylor.js'&gt;&lt;/script&gt;</pre>
-
 
     <div class='clear-50'></div>
 
@@ -73,8 +92,7 @@
 
 <pre>&lt;script&gt;
   var editor = new Taylor('target', {
-    width: '400px'
-    rows: 10
+    height: '1000px'
   });
 &lt;/script&gt;</pre>
 
@@ -92,13 +110,18 @@
       <tbody>
         <tr>
           <td><b>Width</b></td>
-          <td>Width of the editor is (takes percentage or pixels).</td>
+          <td>Width of the editor (takes percentage or pixels).</td>
           <td>100%</td>
         </tr>
         <tr>
-          <td><b>Rows</b></td>
-          <td>How many rows (vertical) tall the text area is.</td>
-          <td>10</td>
+          <td><b>Height</b></td>
+          <td>Height of the editor (percentage or pixels).</td>
+          <td>500px</td>
+        </tr>
+        <tr>
+          <td><b>Buttons</b></td>
+          <td>An array of buttons to include in the utility bar.</td>
+          <td>Documentation in the works.</td>
         </tr>
       </tbody>
     </table>
@@ -109,7 +132,48 @@
 
     <p class='lead'>Example</p>
 
-    <div id='target'></div>
+    <div id='target'>
+Let's checkout some of Taylor's features.
+
+<blockquote><h1>This is some quoted text with a header.</h1>- ishmaelthedestroyer</blockquote><div><ol><li><span style="line-height: 1.428571429;">This is</span>
+</li><li><span style="line-height: 1.428571429;">an ordered list&nbsp;</span>
+</li><li><span style="line-height: 1.428571429;">of items.</span>
+</li></ol>
+<ul><li><span style="line-height: 1.428571429;">And this is</span>
+</li><li><span style="line-height: 1.428571429;">an unordered list&nbsp;</span>
+</li><li><span style="line-height: 1.428571429;">of some more items.</span>
+</li></ul>
+
+Paste a link to an image (http://i.imgur.com/q7VKiiK.gif), highlight it, and click the image button to make it an img HTML element.
+</div><p>
+</p><p title=""><img src="http://i.imgur.com/q7VKiiK.gif" title="" style="">
+</p><p title="">
+</p><p title="">This is an example of a hyperlink to <a href="http://google.com" target="_blank">http://google.com</a>.</p><p>
+</p><p>Here are examples of <b>bolded</b>, <i>italicized</i>, <u>underlined</u>, and <strike>striked</strike> text. You can of course <b><i>combine</i></b> <strike>them</strike> <b><strike><i>in</i></strike></b> any <b><u><strike><i>manner</i></strike></u></b>.</p><p>
+</p><p>Here's some code, surrounded by the pre element and styled with bold and italic tags.</p><pre>((w) <b>-&gt;</b>
+  <b>Destroyer</b> = () <b>-&gt;</b>
+    if !(<b>@</b> <i>instanceof</i> <b>Destroyer</b>)
+      <b>return</b> <i>new</i> <b>Destroyer</b>()
+
+    @_destroy = <b>[</b> 'cars', 'buildings', 'trees' <b>]</b>
+    @_spare = <b>[]</b>
+
+  <b>Destroyer::destroy</b> = (obj) <b>-&gt;</b>
+    obj = <b>null</b> if obj in <b>@</b>_destroy
+    obj = <b>null</b> if !(obj in <b>@</b>_destroy) # <i>destroy anyways</i>
+    console.log 'Destroyer destroyed obj: ' + obj + '.'
+
+  <b>Destroyer::spare</b> = (obj) <b>-&gt;</b>
+    @destroy obj
+    <b>return</b> '<i>Requested denied. Object destroyed LOL</i>'
+
+  w.Ishmael = <i>new</i> <b>Destroyer</b>() # <i>get it?</i>
+) <b>window</b>
+
+Ishmael.destroy o <b>for</b> o <b>in</b> <b>[</b> 'Le Internetz', 'Los Angeles', 'Everything else.' <b>]</b>
+
+</pre>
+    </div>
 
 
   </div>
