@@ -58,7 +58,7 @@ height: '1000px'
 
 <div class='clear-50'></div>
 
-<p class='lead'>Properties</p>
+#Properties
 
 <table class='table table-hover'>
   <thead>
@@ -84,3 +84,9 @@ height: '1000px'
     </tr>
   </tbody>
 </table>
+
+#Notes
+Developed by <a href='http://twitter.com/ishmaelsalive'>Ishmael</a>. <br />
+
+Feedback, suggestions? Tweet me <a href='http://twitter.com/ishmaelsalive'>@IshmaelsAlive</a>. <br />
+Need some personal help? Email me @ <a href='mailto:ishmaelthedestroyer@gmail.com?Subject=Taylor'>ishmaelthedestroyer@gmail.com</a>
