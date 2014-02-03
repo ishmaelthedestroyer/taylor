@@ -86,7 +86,4 @@ height: '1000px'
 </table>
 
 #Notes
-Developed by <a href='http://twitter.com/ishmaelsalive'>Ishmael</a>. <br />
-
 Feedback, suggestions? Tweet me <a href='http://twitter.com/ishmaelsalive'>@IshmaelsAlive</a>. <br />
-Need some personal help? Email me @ <a href='mailto:ishmaelthedestroyer@gmail.com?Subject=Taylor'>ishmaelthedestroyer@gmail.com</a>
