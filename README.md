@@ -5,7 +5,7 @@
 The source code can be found at <a href='http://github.com/ishmaelthedestroyer/taylor' target='_blank'>http://github.com/ishmaelthedestroyer/taylor</a>
 <br />
 The demo can be found at <a href='http://taylor-editor.herokuapp.com' target='_blank'>http://taylor-editor.herokuapp.com</a>
-<br />
+<br /><br />
 The beef of the source code (Coffeescript) can be found at <a href='https://github.com/ishmaelthedestroyer/taylor/blob/master/js/taylor.coffee' target='_blank'>https://github.com/ishmaelthedestroyer/taylor/blob/master/js/taylor.coffee</a>
     <br />
     The compiled source code (Javascript) can be found at <a href='https://github.com/ishmaelthedestroyer/taylor/blob/master/dist/js/taylor.js' target='_blank'>https://github.com/ishmaelthedestroyer/taylor/blob/master/dist/js/taylor.js</a></p>
