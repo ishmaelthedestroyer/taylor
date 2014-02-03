@@ -1,13 +1,10 @@
-Taylor = (_container, _options) ->
-  if !(@ instanceof Taylor)
-    return new Taylor _container, _options
+((window, document) ->
+  'use strict'
 
-  @_container = document.getElementById _container
-
-  # assign unique ID
-  @_id = 'taylor-editor' + document.querySelectorAll('.taylor-editor').length
-
-  @_parentElements = [
+  # variables for Taylor instances
+  selection = null
+  selectionRange = null
+  parentElements = [
     'p'
     'h1'
     'h2'
@@ -19,656 +16,489 @@ Taylor = (_container, _options) ->
     'pre'
   ]
 
-  _defaults =
-    placeholder: '...'
-    anchorPlaceholder: '...'
-    buttons: [
-      'bold'
-      'italic'
-      'underline'
-      'anchor'
-      'header1'
-      'header2'
-      'quote'
-      'image'
-    ]
-    disableReturn: false
-    targetBlank: false
-    delay: 0
-    sticky: true
+  # # # # # # # # # # # # # # # # # # # #
+  # # # # # # # # # # # # # # # # # # # #
 
-  # set options, override defaults with parameters
-  @_options = @_extend _options, _defaults
+  # Basic Helper Functions
 
-  # # # # # # # # # #
-  # # # # # # # # # #
+  extend = (one, two) ->
+    # make sure valid objects
+    return {} if !one
+    return one if !two or typeof two isnt 'object'
 
-  # elements (buttons) on toolbar
+    # get keys in object two
+    keys = Object.keys two
 
-  @_bold = null
-  @_italic = null
-  @_header = null
-  @_anchor = null
-  @_blockquote = null
-  @_unorderedList = null
-  @_orderedList = null
-  @_image = null
+    # iterate over keys, add to object one
+    one[k] = two[k] for k in keys
 
-  @_preview = null
-  @_help = null
+    # return object
+    return one
 
-  @_expand = null
-  @_collapse = null
-
-  # # # # # # # # # #
-  # # # # # # # # # #
-
-  @_textarea = null
-  @_editable = null
-
-  # status of textarea and contenteditable
-  @_textareaVisible = false
-  @_editableVisible = false
-
-  @_selectedStart = null
-  @_selectedEnd = null
-
-  _params = _params || {}
-  @rows = _params.rows || 10
-
-  @entities =
-    '&': '&amp;'
-    '>': '&gt;'
-    '<': '&lt;'
-    '"': '&quot;'
-    "'": '&#39;'
-
-  @_init()
-
-  return @
-
-Taylor::_init = () ->
-  @_createElements()
-
-  @_bindSelect @_editable
-  @_bindPaste @_editable
-  @_setPlaceholders @_editable
-
-  # bind events to taylor-editable container
-  @_bindFormatting @_editable
-  @_bindReturn @_editable
-  @_bindTab @_editable
-
-  @_bindButtons()
-
-Taylor::_createElements = () ->
-  # if element doesn't exist, throw error
-  if @_container is null
-    return throw new Error 'Container doesn\'t exist.'
-
-  # # # # #
-  # # # # #
-
-  # add classes to container
-  @_container.className += ' taylor'
-  @_container.className += ' panel'
-  @_container.className += ' panel-default'
-
-  # # # # #
-  # # # # #
-
-  # add heading
-  _heading = document.createElement 'div'
-  _heading.className = 'panel-heading'
-  _heading.style.height = 'auto'
-
-  @_container.appendChild _heading
-
-  # # # # #
-  # # # # #
-
-  # add _controls
-  _controls = document.createElement 'ul'
-  _controls.className = 'nav'
-  _controls.className += ' navbar-nav'
-
-  _heading.appendChild _controls
-
-  # # # # #
-
-  # bold
-
-  _c = document.createElement 'li'
-  _c.id = 'taylor-bold-btn'
-
-  @_bold = _c
-  _controls.appendChild _c
-
-
-  _label = document.createElement 'span'
-  _label.className = 'glyphicon'
-  _label.className += ' glyphicon-bold'
-
-  @_bold = _label
-
-  _c.appendChild _label
-
-  # # # # #
-
-  # italic
-
-  _c = document.createElement 'li'
-  _c.id = 'taylor-italic-btn'
-  @_italic = _c
-  _controls.appendChild _c
-
-  _label = document.createElement 'span'
-  _label.className = 'glyphicon'
-  _label.className += ' glyphicon-italic'
-
-  _c.appendChild _label
-
-  # # # # #
-
-  # heading
-
-  _c = document.createElement 'li'
-  _c.id = 'taylor-header-btn'
-  @_header = _c
-  _controls.appendChild _c
-
-  _label = document.createElement 'span'
-  _label.className = 'glyphicon'
-  _label.className += ' glyphicon-header'
-
-  _c.appendChild _label
-
-  # # # # #
-
-  # links
-
-  _c = document.createElement 'li'
-  _controls.appendChild _c
-
-  _label = document.createElement 'span'
-  _label.className = 'glyphicon'
-  _label.className += ' glyphicon-globe'
-
-  _c.style.marginLeft = '75px'
-
-  _c.appendChild _label
-
-  # # # # #
-
-  # quote
-
-  _c = document.createElement 'li'
-  _controls.appendChild _c
-
-  _label = document.createElement 'span'
-  _label.className = 'glyphicon'
-  _label.className += ' glyphicon-comment'
-
-  _c.appendChild _label
-
-  # # # # #
-
-  # image
-
-  _c = document.createElement 'li'
-  _controls.appendChild _c
-
-  _label = document.createElement 'span'
-  _label.className = 'glyphicon'
-  _label.className += ' glyphicon-picture'
-
-  _c.appendChild _label
-
-  # # # # #
-
-  # list
-
-  _c = document.createElement 'li'
-  _controls.appendChild _c
-
-  _label = document.createElement 'span'
-  _label.className = 'glyphicon'
-  _label.className += ' glyphicon-th-list'
-
-  _c.appendChild _label
-
-  # # # # #
-  # # # # #
-
-  # add tools for editor
-
-  _tools = document.createElement 'ul'
-  _tools.className = 'nav'
-  _tools.className += ' navbar-nav'
-  _tools.className += ' navbar-right'
-
-  _heading.appendChild _tools
-
-  # # # # #
-
-  _c = document.createElement 'li'
-  _c.style.width = 'auto'
-  _tools.appendChild _c
-
-  _label = document.createElement 'span'
-  _label.className = 'glyphicon'
-  _label.className += ' glyphicon-eye-open'
-  _label.style.marginRight = '10px'
-
-  _c.appendChild _label
-
-  _label = document.createElement 'span'
-  _label.innerHTML = 'Preview'
-
-  _c.appendChild _label
-
-  # # # # #
-
-  # help
-
-  _c = document.createElement 'li'
-  _c.style.width = 'auto'
-  _tools.appendChild _c
-
-  _label = document.createElement 'span'
-  _label.className = 'glyphicon'
-  _label.className += ' glyphicon-question-sign'
-  _label.style.marginRight = '10px'
-
-  _c.appendChild _label
-
-  _label = document.createElement 'span'
-  _label.innerHTML = 'Help'
-
-  _c.appendChild _label
-
-  # # # # #
-
-  # full-screen
-
-  _c = document.createElement 'li'
-  _tools.appendChild _c
-
-  _label = document.createElement 'span'
-  _label.className = 'glyphicon'
-  _label.className += ' glyphicon-fullscreen'
-
-  _c.appendChild _label
-
-  # # # # #
-  # # # # #
-
-  # clear-fix
-  _clear = document.createElement 'div'
-  _clear.style.clear = 'both'
-
-  _heading.appendChild _clear
-
-  # # # # #
-  # # # # #
-
-  # add panel body
-  _body = document.createElement 'div'
-  _body.className = 'panel-body'
-  _body.style.height = 'auto'
-  _body.style.padding = 0
-  _body.style.margin = 0
-
-  @_container.appendChild _body
-
-  # # # # #
-  # # # # #
-
-  ###
-  _textarea = document.createElement 'textarea'
-  _textarea.className = 'form-control'
-  _textarea.rows = @rows
-  _textarea.style.display = 'none'
-
-  _body.appendChild _textarea
-  @_textarea = _textarea
-  ###
-
-  # # # # #
-  # # # # #
-
-  _editable = document.createElement 'div'
-  _editable.className = 'taylor-editable'
-  _editable.className += ' form-control'
-  _editable.setAttribute 'data-taylor-editable', true
-  _editable.style.height = 'auto'
-
-  _editable.contentEditable = true
-
-  _body.appendChild _editable
-  @_editable = _editable
-
-  # TODO: add horizontal rule (hr)
-
-  return @
-
-# # # # # # # # # #
-# # # # # # # # # #
-
-# HELPER FUNCTIONS
-Taylor::_extend = (b, a) ->
-  return a if b is undefined
-
-  for prop of a
-    if a.hasOwnProperty prop and !b.hasOwnProperty prop
-      b[prop] = a[prop]
-
-  return b
-
-Taylor::_saveSelection = () ->
-  sel = window.getSelection()
-
-  if sel.getRangeAt and sel.rangeCount
-    ranges = []
-    i = 0
-    len = sel.rangeCount
-
-    while i < len
-      ranges.push sel.getRangeAt(i)
-      ++i
-    return ranges
-
-  return null
-
-Taylor::_restoreSelection = (saved) ->
-  sel = window.getSelection()
-  if saved
-    sel.removeAllRanges()
-    i = 0
-    len = saved.length
-
-    while i < len
-      sel.addRange saved[i]
-      i += 1
-
-Taylor::_getSelectionStart = () ->
-  node = document.getSelection().anchorNode
-
-  if node and node.nodeType is 3
-    startNode = node.parentNode
-  else
-    startNode = node
-
-  return startNode
-
-Taylor::_getSelectionHtml = () ->
-  html = ''
-
-  if window.getSelection
+  saveSelection = () ->
     sel = window.getSelection()
-    if sel.rangeCount
-      container = document.createElement 'div'
+
+    if sel.getRangeAt and sel.rangeCount
+      ranges = []
       i = 0
       len = sel.rangeCount
 
       while i < len
-        container.appendChild sel.getRangeAt(i).cloneContents()
-        i += 1
+        ranges.push sel.getRangeAt(i)
+        ++i
+      return ranges
 
-      html = container.innerHTML
-  else if document.selection
-    if document.selection.type is 'Text'
-      html = document.selection.createRange().htmlText
+    return null
 
-  return html
+  restoreSelection = (saved) ->
+    sel = window.getSelection()
+    if saved
+      sel.removeAllRanges()
+      i = 0
+      len = saved.length
 
-Taylor::_bindFormatting = (element) ->
-  console.log '_bindFormatting() fired.'
+      while i < len
+        sel.addRange saved[i]
+        ++i
 
-  element.addEventListener 'keyup', (e) =>
-    node = @_getSelectionStart()
+  getSelectionStart = () ->
+    node = document.getSelection().anchorNode
 
-    if node and node.getAttribute 'data-taylor-editable' and
-    !node.children.length and
-    (!@_options.disableReturn or node.getAttribute 'data-disable-return')
-      document.execCommand 'formatBlock', false, 'p'
+    if node and node.nodeType is 3
+      startNode = node.parentNode
+    else
+      startNode = node
 
-    if e.which is 13 and !e.shiftKey
-      node = @_getSelectionStart()
-      tagName = node.tagName.toLowerCase()
+    return startNode
 
-      if !(@_options.disableReturn ||
-      element.getAttribute 'data-disable-return') and
-      tagName isnt 'li' and !@_isListItemChild node
-        document.execCommand 'formatBlock', false, 'p'
-
-        if tagName is 'a'
-          document.execCommand 'unlink', false, null
-
-  return @
-
-Taylor::_bindReturn = (element) ->
-  console.log '_bindReturn() fired.'
-
-  element.addEventListener 'keypress', (e) =>
-    if e.which is 13
-      if @_options.disableReturn || element.getAttribute 'data-disable-return'
-        e.preventDefault()
-
-  return @
-
-Taylor::_bindTab = (element) ->
-  console.log '_bindTab() fired.'
-
-  element.addEventListener 'keydown', (e) =>
-    if e.which is 9
-      # override tab for pre nodes
-      tag = @_getSelectionStart().tagName.toLowerCase()
-      if tag is 'pre'
-        e.preventDefault()
-        document.execCommand 'insertHTML', null, '    '
-
-  return @
-
-Taylor::_bindSelect = (element) ->
-  console.log '_bindSelect() fired.'
-
-  timer = null
-  _checkSelection = @_checkSelection
-
-  @_checkSelectionWrapper = () =>
-    console.log 'Taylor _checkSelectionWrapper eventListener fired.'
-
-    clearTimeout timer
-
-    timer = setTimeout ->
-      _checkSelection()
-    , @_options.delay
-
-  _doc = document.documentElement
-  _doc.addEventListener 'mouseup', @_checkSelectionWrapper
-
-  element.addEventListener 'keyup', @_checkSelectionWrapper
-  element.addEventListener 'blur', @_checkSelectionWrapper
-
-  return @
-
-Taylor::_bindPaste = (element) ->
-  console.log '_bindPaste() fired.'
-
-  wrapper = (e) =>
-    console.log 'Taylor _bindPaste eventListener fired.'
-
+  getSelectionHtml = () ->
     html = ''
-    element.classList.remove 'taylor-editor-placeholder'
-    if e.clipboardData and e.clipboardData.getData
-      e.preventDefault()
-      if @_options.disableReturn
-        paragraphs = e.clipboardData.getData('text/plain').split /[\r\n]/g
+
+    if window.getSelection
+      sel = window.getSelection()
+      if sel.rangeCount
+        container = document.createElement 'div'
         i = 0
-        while i < paragraphs.length
-          if paragraphs[i] isnt ''
-            html += '<p>' + paragraphs[i] + '</p>'
+        len = sel.rangeCount
+
+        while i < len
+          container.appendChild sel.getRangeAt(i).cloneContents()
           ++i
-        document.execCommand 'insertHTML', false, html
-      else
-        document.execCommand 'insertHTML', false,
-        e.clipboardData.getData 'text/plain'
 
-  element.addEventListener 'paste', wrapper
+        html = container.innerHTML
+    else if document.selection
+      if document.selection.type is 'Text'
+        html = document.selection.createRange().htmlText
 
-  return @
+    return html
 
-Taylor::_bindWindowActions = () ->
-  # TODO: bindWindowActions initialize function
-  window.addEventListener 'resize', () =>
-    console.log 'Taylor: window resize eventListener fired.'
+  # # # # # # # # # # # # # # # # # # # #
+  # # # # # # # # # # # # # # # # # # # #
 
-Taylor::_bindButtons = () ->
-  bindButton = (element, action) =>
-    console.log 'Binding button: ' + action
+  # Utility / Private Functions
 
-    element.addEventListener 'mousedown', (e) =>
-      # prevent default events from occuring
-      e.preventDefault()
-      e.stopPropagation()
+  checkSelection = () ->
+    newSelection = window.getSelection()
+    selectionElement = getSelectionElement()
+    checkSelectionElement newSelection, selectionElement
 
-      if !@_selection
-        @_checkSelection()
+  # # # # # # # # # #
 
-      if action.indexOf('append-') > -1
-        @_execFormatBlock action.replace('append-', '')
-      else if action is 'anchor'
-        @_triggerAnchorAction e
-      else if action is 'image'
-        document.execCommand 'insertImage', false, window.getSelection()
-      else
-        document.execCommand action, false, null
+  checkSelectionElement = (newSelection, selectionElement) ->
+    selection = newSelection
+    selectionRange = selection.getRangeAt 0
 
-      return @
+    return
 
-  # bind events to buttons
-  bindButton @_bold, 'bold'
-  bindButton @_italic, 'italic'
-  bindButton @_header, 'h1'
+  # # # # # # # # # #
 
-  return @
+  getSelectionElement = () ->
+    selection = window.getSelection()
+    range = selection.getRangeAt 0
+    current = range.commonAncestorContainer
+    parent = current.parentNode
+    result = null
 
-Taylor::_execFormatBlock = (type) ->
-  selectionData = @_getselectionData @_selection.anchorNode
+    getMediumElement = (e) ->
+      parent = e
+      try
+        while !parent.getAttribute 'data-taylor-element'
+          parent = parent.parentNode
+      catch err
+        return false
 
-  # FF handles blockquote differently on formatBlock
-  if type is 'blockquote' and selectionData.el and
-  selectionData.el.parentNode.tagName.toLowerCase() is 'blockquote'
-    return document.execCommand 'outdent', false, null
+      return parent
 
-  if selectionData.tagName is type
-    type = 'p'
-
-  return document.execCommand 'formatBlock', false, type
-
-Taylor::_triggerAnchorAction = () ->
-  if @_selection.anchorNode.parentNode.tagName.toLowerCase() is 'a'
-    document.execCommand 'unlink', false, null
-  else
-    # TODO: show anchor form
-    console.log 'TODO'
-
-Taylor::_setPlaceholders = (element) ->
-  console.log 'Firing _setPlaceholders initialize function.'
-
-  activate = () ->
-    console.log 'Firing Taylor::_setPlaceholder::activate()'
-    if element.textContent.replace(/^\s+|\s+$/g, '') is ''
-      console.log 'Adding placeholder.'
-      element.classList.add 'taylor-editor-placeholder'
-
-  wrapper = (e) ->
-    console.log 'Firing Taylor::_setPlaceholder::remove()'
-    element.classList.remove 'taylor-editor-placeholder'
-    if e.type isnt 'keypress'
-      activate()
-
-  element.addEventListener 'blur', wrapper
-  element.addEventListener 'keypress', wrapper
-
-  return @
-
-Taylor::_checkSelection = () ->
-  ###
-  newSelection = window.getSelection()
-  if newSelection.toString().trim() is '' or
-  @_options
-  return true
-  ###
-
-Taylor::_getSelectionElement = () ->
-  selection = window.getSelection()
-  range = selection.getRangeAt 0
-  current = range.commonAncestorContainer
-  parent = current.parentNode
-  result = null
-
-  getMediumElement = (e) ->
-    parent = e
+    # try current node
     try
-      while !parent.getAttribute 'data-taylor-element'
-        parent = parent.parentNode
+      if current.getAttribute 'data-taylor-element'
+        result = current
+      else
+        result = getMediumElement parent
     catch err
-      return false
-
-    return parent
-
-  # try current node
-  try
-    if current.getAttribute 'data-taylor-element'
-      result = current
-    else
       result = getMediumElement parent
-  catch err
-    result = getMediumElement parent
 
-  return result
+    return result
 
-Taylor::_isListItemChild = (node) ->
-  parentNode = node.parentNode
-  tagName = parentNode.tagName.toLowerCase()
+  # # # # # # # # # #
 
-  while @_parentElements.indexOf(tagName) is -1 and tagName isnt 'div'
-    return true if tagName is 'li'
+  getSelectionData = (element) ->
+    tagName = ''
 
-    parentNode = parentNode.parentNode
-    if parentNode and parentNode.tagName
-      tagName = parentNode.tagName.toLowerCase()
+    if element and element.tagName
+      tagName = element.tagName.toLowerCase()
+
+    while element and parentElements.indexOf(tagName) is -1
+      element = element.parentNode
+      if element and element.tagName
+        tagName = element.tagName.toLowerCase()
+
+    # return object
+    element: element
+    tagName: tagName
+
+  # # # # # # # # # #
+
+  execFormatBlock = (type) ->
+    selectionData = getSelectionData selection.anchorNode
+
+    # FF handles blockquote differently on formatBlock
+    if type is 'blockquote' and selectionData.element and
+    selectionData.element.parentNode.tagName.toLowerCase() is 'blockquote'
+      return document.execCommand 'outdent', false, null
+
+    if selectionData.tagName is type
+      type = 'p'
+
+    return document.execCommand 'formatBlock', false, type
+
+  # # # # # # # # # #
+
+  triggerAnchorAction = () ->
+    if selection.anchorNode.parentNode.tagName.toLowerCase() is 'a'
+      document.execCommand 'unlink', false, null
     else
-      return false
+      console.log 'TODO: anchors'
 
-  return false
+  # # # # # # # # # #
 
-Taylor::characterCount = () ->
+  # # # # # # # # # # # # # # # # # # # #
+  # # # # # # # # # # # # # # # # # # # #
 
-Taylor::wordCount = () ->
+  # Initializiation Functions
 
-Taylor::lineCount = () ->
+  createElements = (obj) ->
+    console.log 'Creating elements.', obj
 
-Taylor::sentenceCount = () ->
+    obj._container.className += ' taylor-editor'
+    obj._container.className += ' panel'
+    obj._container.className += ' panel-default'
 
-Taylor::paragraphCount = () ->
+    # # # # #
 
-Taylor::clear = () ->
+    heading = document.createElement 'div'
+    heading.className = 'panel-heading'
+    heading.style.height = 'auto'
 
-Taylor::undo = () ->
+    obj._container.appendChild heading
 
-Taylor::redo = () ->
+    # # # # #
 
-Taylor::import = () ->
+    controls = document.createElement 'ul'
+    controls.className = 'nav'
+    controls.className += ' navbar-nav'
+    controls.className += ' taylor-controls'
 
-Taylor::export = () ->
+    heading.appendChild controls
 
-Taylor::exportText = () ->
+    # # # # #
 
-Taylor::showEditor = () ->
+    # create buttons and insert into heading
+    obj._buttons = createButtons controls, obj._options.buttons
 
-Taylor::showPreview = () ->
+    # clear-fix
+    clear = document.createElement 'div'
+    clear.style.clear = 'both'
 
-Taylor::export = () ->
+    heading.appendChild clear
+
+    # # # # #
+
+    # add panel body
+    body = document.createElement 'div'
+    body.className = 'panel-body'
+    body.style.height = 'auto'
+    body.style.padding = 0
+    body.style.margin = 0
+
+    obj._container.appendChild body
+
+    # # # # #
+
+    editable = document.createElement 'div'
+    editable.className = 'taylor-editable'
+    editable.className += ' form-control'
+    editable.setAttribute 'data-taylor-editable', true
+    editable.style.height = '100%'
+    editable.contentEditable = true
+
+    body.appendChild editable
+
+    # # # # #
+
+    return obj
+
+  # # # # # # # # # #
+
+  createButtons = (parent, buttons) ->
+    console.log 'Creating buttons.', buttons
+
+    templates =
+      bold:
+        name: 'bold'
+        action: 'bold'
+        element: 'b'
+        class: 'fa fa-bold'
+        content: ''
+      italic:
+        name: 'italic'
+        action: 'italic'
+        element: 'i'
+        class: 'fa fa-italic'
+        content: ''
+      underline:
+        name: 'underline'
+        action: 'underline'
+        element: 'u'
+        class: 'fa fa-underline'
+        content: ''
+      strikethrough:
+        name: 'strikethrough'
+        action: 'strikethrough'
+        element: 'strike'
+        class: 'fa fa-strikethrough'
+        content: ''
+      h:
+        name: 'h'
+        action: 'append-h1'
+        content: '<b>H</b>'
+        element: 'h1'
+      h2:
+        name: 'h2'
+        action: 'append-h2'
+        content: '<b>H2</b>'
+        element: 'h2'
+      h3:
+        name: 'h3'
+        action: 'append-h3'
+        content: '<b>H3</b>'
+        element: 'h3'
+      h4:
+        name: 'h4'
+        action: 'append-h4'
+        content: '<b>H2</b>'
+        element: 'h4'
+      h5:
+        name: 'h5'
+        action: 'append-h5'
+        content: '<b>H5</b>'
+        element: 'h5'
+      h6:
+        name: 'h6'
+        action: 'append-h6'
+        content: '<b>H6</b>'
+        element: 'h6'
+      subscript:
+        name: 'subscript'
+        action: 'subscript'
+        element: 'sub'
+        class: 'fa fa-strikethrough'
+        content: ''
+      blockquote:
+        name: 'blockquote'
+        action: 'append-blockquote'
+        element: 'blockquote'
+        class: 'fa fa-quote-right'
+        content: ''
+      unorderedlist:
+        name: 'unorderedlist'
+        action: 'insertunorderedlist'
+        element: 'ul'
+        class: 'fa fa-list-ul'
+        content: ''
+      orderedlist:
+        name: 'orderedlist'
+        action: 'insertorderedlist'
+        element: 'ol'
+        class: 'fa fa-list-ol'
+        content: ''
+      pre:
+        name: 'pre'
+        action: 'append-pre'
+        element: 'pre'
+        class: 'fa fa-code'
+        content: ''
+      anchor:
+        name: 'anchor'
+        action: 'anchor'
+        element: 'a'
+        class: 'fa fa-link'
+        content: ''
+      image:
+        name: 'image'
+        action: 'image'
+        element: 'img'
+        class: 'fa fa-picture-o'
+        content: ''
+
+    elements = []
+
+    keys = Object.keys templates
+
+    createButton = (template) ->
+      if !(template.name in keys)
+        return throw new Error 'That button type does not exist!'
+
+      console.log 'Creating button.', template
+
+      li = document.createElement 'li'
+      parent.appendChild li
+
+      btn = document.createElement 'button'
+      btn.className = 'taylor-btn'
+      btn.setAttribute 'data-taylor-btn-action', template.action
+      li.appendChild btn
+
+      span = document.createElement 'span'
+      span.className = template.class
+      span.innerHTML = template.content || ''
+      btn.appendChild span
+
+      template.element = btn
+
+      return template
+
+    elements = []
+
+    for k in buttons
+      elements.push createButton(templates[k])
+
+    return elements
+
+  # # # # # # # # # #
+
+  bindButtons = (obj, buttons) ->
+    for btn in buttons
+      ((btn) ->
+        btn.element.addEventListener 'click', (e) ->
+          console.log 'Firing btn event.', btn.action
+
+          # prevent default events
+          e.preventDefault()
+          e.stopPropagation()
+
+          checkSelection() if !obj._selection
+
+          if btn.action.indexOf('append-') > -1
+            execFormatBlock btn.action.replace('append-', '')
+          else if btn.action is 'anchor'
+            triggerAnchorAction e
+          else if btn.action is 'image'
+            document.execCommand 'insertImage', false, window.getSelection()
+          else
+            document.execCommand btn.action, false, null
+
+          return @
+      ) btn
+
+    return
+
+  # # # # # # # # # #
+
+  bindSelect = (element, delay) ->
+    console.log '_bindSelect() fired.'
+
+    timer = null
+
+    wrapper = () ->
+      console.log 'checkSelectionWrapper fired.'
+
+      clearTimeout timer
+      timer = setTimeout ->
+        checkSelection()
+      , delay || 0
+
+    doc = document.documentElement
+    doc.addEventListener 'mouseup', wrapper
+    element.addEventListener 'keyup', wrapper
+    element.addEventListener 'blur', wrapper
+
+    return @
+
+  # # # # # # # # # #
+
+  initialize = (obj, options) ->
+    if !obj._container
+      return throw new Error 'Taylor target element does not exist!'
+
+    defaults =
+      placeholder: '...'
+      anchorPlaceholder: 'Type a URL'
+      buttons: [
+        'bold'
+        'italic'
+        'underline'
+        'strikethrough'
+        'h'
+        'orderedlist'
+        'unorderedlist'
+        'blockquote'
+        'pre'
+        'anchor'
+        'image'
+      ]
+      targetBlank: false
+      delay: 0
+      sticky: false
+
+    # extend options, override defaults
+    obj._options = extend options, defaults
+
+    console.log 'Got options.', obj._options
+
+    # # # # #
+
+    createElements obj
+    bindButtons obj, obj._buttons || []
+    bindSelect obj._container, obj._options.delay
+    bindPaste obj._container
+
+    # # # # #
+
+    return @
+
+  # # # # # # # # # # # # # # # # # # # #
+  # # # # # # # # # # # # # # # # # # # #
+
+  # Taylor Editor
+
+  Taylor = (container, options) ->
+    if !(@ instanceof Taylor)
+      return new Taylor container, options
+
+    # find element, bind to object
+    @_container = document.getElementById container
+    @_buttons = []
+
+    # initialize
+    initialize @, options || {}
+
+    return @
+
+  # # # # # # # # # # # # # # # # # # # #
+  # # # # # # # # # # # # # # # # # # # #
+
+  # expose to window
+  window.Taylor = Taylor
+
+) window, document

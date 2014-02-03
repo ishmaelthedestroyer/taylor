@@ -1,4 +1,4 @@
-.taylor ul.nav.navbar-nav li {
+.taylor-editor ul.nav.navbar-nav button {
   width: 30px;
   height: 30px;
   margin: 0px 10px 0 10px;
@@ -13,14 +13,20 @@
   background-image: none;
   vertical-align: middle;
   border-radius: 4px;
+  border: none;
+  outline: none;
+  background: none !important;
+  background-color: none !important;
+  background-image: none !important;
+  box-shadow: none;
   -webkit-transition: all 0.2s ease-in-out;
   transition: all 0.2s ease-in-out;
 }
-.taylor ul.nav.navbar-nav li:hover {
-  background-color: rgba(0, 0, 0, 0.1);
+.taylor-editor ul.nav.navbar-nav button:hover {
+  background-color: rgba(0, 0, 0, 0.1) !important;
 }
-.taylor ul.nav.navbar-nav li:active {
-  background-color: rgba(0, 0, 0, 0.4);
+.taylor-editor ul.nav.navbar-nav button:active {
+  background-color: rgba(0, 0, 0, 0.4) !important;
 }
 
 .taylor-preview {

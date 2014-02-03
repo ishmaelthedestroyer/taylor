@@ -228,7 +228,7 @@ module.exports = function(grunt) {
         expand: true,
         cwd: '.',
         src: ['<%= files.client %>'],
-        dest: '<%= dir.tmp %>',
+        dest: '<%= dir.dist %>',
         ext: '.js',
         filter: function(filename) {
           var ext, split;
@@ -350,6 +350,12 @@ module.exports = function(grunt) {
       },
       client: {
         src: ['<%= files.client %>'],
+        options: {
+          max_line_length: {
+            level: 'error',
+            value: 500
+          }
+        },
         filter: function(filename) {
           var ext, split;
           split = filename.split('.');
@@ -362,7 +368,7 @@ module.exports = function(grunt) {
   grunt.initConfig(grunt.util._.extend(taskConfig, fileConfig));
   grunt.registerTask('default', ['concurrent:dev']);
   grunt.registerTask('build:server', ['clean:server', 'coffeelint:server', 'coffee:server', 'copy:meta', 'copy:mock']);
-  grunt.registerTask('build:client', ['clean:client', 'clean:html', 'coffeelint:client', 'coffee:client', 'concat:client', 'coffeecup', 'clean:tmp', 'mkdir:tmp']);
+  grunt.registerTask('build:client', ['clean:client', 'clean:html', 'coffeelint:client', 'coffee:client', 'coffeecup', 'clean:tmp', 'mkdir:tmp']);
   grunt.registerTask('build:css', ['clean:css', 'recess:app']);
   grunt.registerTask('build:assets', ['clean:assets', 'copy:vendor', 'copy:img', 'copy:favicon']);
   grunt.registerTask('build', ['clean:tmp', 'clean:dist', 'todos', 'build:server', 'build:client', 'build:css', 'build:assets', 'clean:tmp', 'mkdir:tmp']);

@@ -278,7 +278,7 @@ module.exports = (grunt) ->
         src: [
           '<%= files.client %>'
         ]
-        dest: '<%= dir.tmp %>'
+        dest: '<%= dir.dist %>'
         ext: '.js'
         filter: (filename) ->
           split = filename.split '.'
@@ -407,6 +407,10 @@ module.exports = (grunt) ->
         src: [
           '<%= files.client %>'
         ]
+        options:
+          max_line_length:
+            level: 'error'
+            value: 500
         filter: (filename) ->
           split = filename.split '.'
           ext = split[split.length - 1]
@@ -436,8 +440,6 @@ module.exports = (grunt) ->
 
     'coffeelint:client'
     'coffee:client'
-
-    'concat:client'
 
     'coffeecup'
 
