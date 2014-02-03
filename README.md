@@ -1,6 +1,6 @@
 #About
 
-<p>Taylor is a lightweight HTML editor ( < 1000 lines) written in Coffeescript and compiled into Javascript for use on the web. It's open-source, MIT-licensed (do whatever the hell you want with it), but please consider contributing to the source code to help better it. The goal is to eventually eliminate all dependencies to make Taylor a standalone text-editor, use primarily targeted towards developers' blogs, hyper-text comment systems, and such.
+<p>Taylor is a lightweight HTML editor ( &lt; 1000 lines) written in Coffeescript and compiled into Javascript for use on the web. It's open-source, MIT-licensed (do whatever the hell you want with it), but please consider contributing to the source code to help better it. The goal is to eventually eliminate all dependencies to make Taylor a standalone text-editor, use primarily targeted towards developers' blogs, hyper-text comment systems, and such.
 <br /><br />
 The source code can be found at <a href='http://github.com/ishmaelthedestroyer/taylor' target='_blank'>http://github.com/ishmaelthedestroyer/taylor</a>
 <br />
@@ -35,7 +35,7 @@ The demo can be found at <a href='http://taylor-editor.herokuapp.com' target='_b
 
 <div class='clear-50'></div>
 
-<p class='lead'>Markup</p>
+#Markup
 
 <pre>&lt;div id='target'&gt;&lt;/div&gt;</pre>
 
