@@ -237,7 +237,6 @@ var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; 
   };
   createElements = function(obj) {
     var body, clear, controls, heading, textarea, tools;
-    console.log('Creating elements.', obj);
     obj._container.className += ' taylor-editor';
     obj._container.className += ' panel';
     obj._container.className += ' panel-default';
@@ -306,7 +305,6 @@ var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; 
   };
   createButtons = function(parent, buttons) {
     var createButton, elements, k, keys, templates, _i, _len;
-    console.log('Creating buttons.', buttons);
     templates = {
       bold: {
         name: 'bold',
@@ -429,7 +427,6 @@ var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; 
       if (!(_ref = template.name, __indexOf.call(keys, _ref) >= 0)) {
         throw new Error('That button type does not exist!');
       }
-      console.log('Creating button.', template);
       li = document.createElement('li');
       parent.appendChild(li);
       btn = document.createElement('button');
@@ -453,7 +450,6 @@ var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; 
   };
   createTools = function(parent, tools) {
     var createTool, elements, k, templates, _i, _len;
-    console.log('Creating tools.');
     templates = {
       preview: {
         name: 'preview',
@@ -470,7 +466,6 @@ var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; 
     };
     createTool = function(template) {
       var btn, li, span;
-      console.log('Creating tool.', template);
       li = document.createElement('li');
       parent.appendChild(li);
       btn = document.createElement('button');
@@ -496,7 +491,6 @@ var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; 
     var btn, _fn, _i, _len;
     _fn = function(btn) {
       return btn.element.addEventListener('click', function(e) {
-        console.log('Firing btn event.', btn.action);
         e.preventDefault();
         e.stopPropagation();
         if (selection) {
@@ -525,7 +519,6 @@ var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; 
     for (_i = 0, _len = tools.length; _i < _len; _i++) {
       tool = tools[_i];
       _results.push((function(tool) {
-        console.log('Binding tool.', tool);
         if (tool.action === 'preview') {
           return tool.element.addEventListener('click', function() {
             return preview(obj);
@@ -537,10 +530,8 @@ var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; 
   };
   bindSelect = function(element, delay) {
     var doc, timer, wrapper;
-    console.log('_bindSelect() fired.');
     timer = null;
     wrapper = function() {
-      console.log('checkSelectionWrapper fired.');
       clearTimeout(timer);
       return timer = setTimeout(function() {
         return checkSelection();
@@ -554,10 +545,8 @@ var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; 
   };
   bindPaste = function(element, disableReturn) {
     var wrapper;
-    console.log('bindPaste() fired.');
     wrapper = function(e) {
       var html, i, paragraphs;
-      console.log('Taylor _bindPaste eventListener fired.');
       html = '';
       element.classList.remove('taylor-editor-placeholder');
       if (e.clipboardData && e.clipboardData.getData) {
@@ -581,7 +570,6 @@ var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; 
     return this;
   };
   bindFormatting = function(element, disableReturn) {
-    console.log('bindFormatting() fired.');
     element.addEventListener('keyup', function(e) {
       var node, tagName;
       node = getSelectionStart();
@@ -602,11 +590,9 @@ var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; 
     return this;
   };
   bindTab = function(element) {
-    console.log('bindTab() fired.');
     element.addEventListener('keydown', function(e) {
       var tag;
       if (e.which === 9) {
-        console.log('bindTab event listener fired.');
         e.preventDefault();
         tag = getSelectionStart().tagName.toLowerCase();
         if (tag === 'pre') {
@@ -619,7 +605,6 @@ var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; 
     return this;
   };
   bindReturn = function(element, disableReturn) {
-    console.log('bindReturn() fired.');
     element.addEventListener('keypress', function(e) {
       if (e.which === 13) {
         if (disableReturn || element.getAttribute('data-disable-return')) {
@@ -634,7 +619,6 @@ var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; 
     if (!obj._container) {
       throw new Error('Taylor target element does not exist!');
     }
-    console.log(options);
     defaults = {
       width: '100%',
       height: '500px',
@@ -648,7 +632,6 @@ var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; 
       sticky: false
     };
     obj._options = extend(defaults, options);
-    console.log('Got options.', obj._options);
     createElements(obj);
     bindButtons(obj, obj._buttons || []);
     bindTools(obj, obj._tools || []);
@@ -661,7 +644,6 @@ var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; 
   };
   preview = function(obj) {
     var editable, previewBtn, previewIcon, textarea;
-    console.log('Firing preview function.');
     editable = obj._container.getElementsByClassName('taylor-editable')[0];
     textarea = obj._container.getElementsByClassName('taylor-textarea')[0];
     previewBtn = obj._container.getElementsByClassName('taylor-tool-preview')[0];
@@ -698,6 +680,16 @@ var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; 
     editable = this._container.getElementsByClassName('taylor-editable')[0];
     setSelectedRange(editable, 0, 0);
     return this;
+  };
+  Taylor.prototype["export"] = function() {
+    var editable, textarea;
+    editable = this._container.getElementsByClassName('taylor-editable')[0];
+    textarea = this._container.getElementsByClassName('taylor-textarea')[0];
+    if (editable.style.display !== 'none') {
+      return br2nl(editable.innerHTML);
+    } else {
+      return textarea.value;
+    }
   };
   return window.Taylor = Taylor;
 })(window, document);

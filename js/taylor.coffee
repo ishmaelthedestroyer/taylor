@@ -22,13 +22,13 @@
   # Basic Helper Functions
 
   trim = (text) ->
-    return text.replace /^\s+|\s+$/g,""
+    return text.replace /^\s+|\s+$/g, ""
 
   nl2br = (str) ->
     return str.replace /\n/g, '<br />'
 
   br2nl = (str) ->
-    return str.replace /<br\s*\/?>/mg,'\n'
+    return str.replace /<br\s*\/?>/mg, '\n'
 
   extend = (one, two) ->
     # make sure valid objects
@@ -229,8 +229,7 @@
     selectionData = getSelectionData selection.anchorNode
 
     # FF handles blockquote differently on formatBlock
-    if type is 'blockquote' and selectionData.element and
-    selectionData.element.parentNode.tagName.toLowerCase() is 'blockquote'
+    if type is 'blockquote' and selectionData.element and selectionData.element.parentNode.tagName.toLowerCase() is 'blockquote'
       return document.execCommand 'outdent', false, null
 
     if selectionData.tagName is type
@@ -269,8 +268,6 @@
   # Initializiation Functions
 
   createElements = (obj) ->
-    console.log 'Creating elements.', obj
-
     obj._container.className += ' taylor-editor'
     obj._container.className += ' panel'
     obj._container.className += ' panel-default'
@@ -376,8 +373,6 @@
   # # # # # # # # # #
 
   createButtons = (parent, buttons) ->
-    console.log 'Creating buttons.', buttons
-
     templates =
       bold:
         name: 'bold'
@@ -484,8 +479,6 @@
       if !(template.name in keys)
         return throw new Error 'That button type does not exist!'
 
-      console.log 'Creating button.', template
-
       li = document.createElement 'li'
       parent.appendChild li
 
@@ -514,8 +507,6 @@
   # # # # # # # # # #
 
   createTools = (parent, tools) ->
-    console.log 'Creating tools.'
-
     templates =
       preview:
         name: 'preview'
@@ -529,8 +520,6 @@
         content: ''
 
     createTool = (template) ->
-      console.log 'Creating tool.', template
-
       li = document.createElement 'li'
       parent.appendChild li
 
@@ -562,8 +551,6 @@
     for btn in buttons
       ((btn) ->
         btn.element.addEventListener 'click', (e) ->
-          console.log 'Firing btn event.', btn.action
-
           # prevent default events
           e.preventDefault()
           e.stopPropagation()
@@ -579,8 +566,7 @@
           else
             document.execCommand btn.action, false, null
 
-          return @
-      ) btn
+          return @) btn
 
     return
 
@@ -589,23 +575,16 @@
   bindTools = (obj, tools) ->
     for tool in tools
       ((tool) ->
-        console.log 'Binding tool.', tool
-
         if tool.action is 'preview'
           tool.element.addEventListener 'click', () ->
-            preview obj
-      ) tool
+            preview obj) tool
 
   # # # # # # # # # #
 
   bindSelect = (element, delay) ->
-    console.log '_bindSelect() fired.'
-
     timer = null
 
     wrapper = () ->
-      console.log 'checkSelectionWrapper fired.'
-
       clearTimeout timer
       timer = setTimeout ->
         checkSelection()
@@ -621,11 +600,7 @@
   # # # # # # # # # #
 
   bindPaste = (element, disableReturn) ->
-    console.log 'bindPaste() fired.'
-
     wrapper = (e) ->
-      console.log 'Taylor _bindPaste eventListener fired.'
-
       html = ''
       element.classList.remove 'taylor-editor-placeholder'
       if e.clipboardData and e.clipboardData.getData
@@ -640,7 +615,7 @@
           document.execCommand 'insertHTML', false, html
         else
           document.execCommand 'insertHTML', false,
-          e.clipboardData.getData 'text/plain'
+            e.clipboardData.getData 'text/plain'
 
     element.addEventListener 'paste', wrapper
 
@@ -649,21 +624,17 @@
   # # # # # # # # # #
 
   bindFormatting = (element, disableReturn) ->
-    console.log 'bindFormatting() fired.'
-
     element.addEventListener 'keyup', (e) ->
       node = getSelectionStart()
 
-      if node and node.getAttribute 'data-taylor-editable' and
-      !node.children.length and !disableReturn
+      if node and node.getAttribute 'data-taylor-editable' and !node.children.length and !disableReturn
         document.execCommand 'formatBlock', false, 'p'
 
       if e.which is 13 and !e.shiftKey
         node = getSelectionStart()
         tagName = node.tagName.toLowerCase()
 
-        if !disableReturn and
-        tagName isnt 'li' and !isListItemChild node
+        if !disableReturn and tagName isnt 'li' and !isListItemChild node
           document.execCommand 'formatBlock', false, 'p'
 
           if tagName is 'a'
@@ -674,12 +645,8 @@
   # # # # # # # # # #
 
   bindTab = (element) ->
-    console.log 'bindTab() fired.'
-
     element.addEventListener 'keydown', (e) ->
       if e.which is 9
-        console.log 'bindTab event listener fired.'
-
         e.preventDefault()
 
         # override tab for pre nodes
@@ -693,8 +660,6 @@
   # # # # # # # # # #
 
   bindReturn = (element, disableReturn) ->
-    console.log 'bindReturn() fired.'
-
     element.addEventListener 'keypress', (e) ->
       if e.which is 13
         if disableReturn || element.getAttribute 'data-disable-return'
@@ -707,8 +672,6 @@
   initialize = (obj, options) ->
     if !obj._container
       return throw new Error 'Taylor target element does not exist!'
-
-    console.log options
 
     defaults =
       width: '100%'
@@ -740,8 +703,6 @@
     # extend options, override defaults
     obj._options = extend defaults, options
 
-    console.log 'Got options.', obj._options
-
     # # # # #
 
     createElements obj
@@ -763,7 +724,6 @@
   # Functions to bind to Taylor
 
   preview = (obj) ->
-    console.log 'Firing preview function.'
     editable = obj._container.getElementsByClassName('taylor-editable')[0]
     textarea = obj._container.getElementsByClassName('taylor-textarea')[0]
     previewBtn = obj._container.getElementsByClassName('taylor-tool-preview')[0]
@@ -787,10 +747,10 @@
   getHTML = (obj) ->
 
 
-  # # # # # # # # # # # # # # # # # # # #
-  # # # # # # # # # # # # # # # # # # # #
+    # # # # # # # # # # # # # # # # # # # #
+    # # # # # # # # # # # # # # # # # # # #
 
-  # Taylor Editor
+    # Taylor Editor
 
   Taylor = (container, options) ->
     if !(@ instanceof Taylor)
@@ -817,10 +777,17 @@
 
     return @
 
+  Taylor::export = () ->
+    editable = @_container.getElementsByClassName('taylor-editable')[0]
+    textarea = @_container.getElementsByClassName('taylor-textarea')[0]
+
+    if editable.style.display isnt 'none'
+      return br2nl editable.innerHTML
+    else
+      return textarea.value
+
   # # # # # # # # # # # # # # # # # # # #
   # # # # # # # # # # # # # # # # # # # #
 
   # expose to window
-  window.Taylor = Taylor
-
-) window, document
+  window.Taylor = Taylor) window, document
