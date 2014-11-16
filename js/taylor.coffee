@@ -796,6 +796,9 @@
     editable = @_container.getElementsByClassName('taylor-editable')[0]
     setSelectedRange editable, 0, 0
 
+    # call `onLoad` function if provided
+    @_options.onLoad && @_options.onLoad @, options
+
     return @
 
   Taylor::export = () ->

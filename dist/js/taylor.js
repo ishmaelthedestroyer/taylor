@@ -700,6 +700,7 @@ var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; 
     initialize(this, options || {});
     editable = this._container.getElementsByClassName('taylor-editable')[0];
     setSelectedRange(editable, 0, 0);
+    this._options.onLoad && this._options.onLoad(this, options);
     return this;
   };
   Taylor.prototype["export"] = function() {
