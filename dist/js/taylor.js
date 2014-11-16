@@ -2,7 +2,7 @@ var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; 
 
 (function(window, document) {
   'use strict';
-  var Taylor, bindButtons, bindFormatting, bindPaste, bindReturn, bindSelect, bindTab, bindTools, br2nl, checkSelection, checkSelectionElement, createButtons, createElements, createTools, execFormatBlock, extend, getHTML, getSelectionData, getSelectionElement, getSelectionHtml, getSelectionStart, getSelectionText, initialize, isListItemChild, nl2br, parentElements, preview, restoreSelection, saveSelection, selection, selectionRange, setSelectedRange, setTargetBlank, triggerAnchorAction, trim;
+  var Taylor, bindButtons, bindFormatting, bindPaste, bindReturn, bindSelect, bindTab, bindTools, br2nl, checkSelection, checkSelectionElement, createButtons, createElements, createTools, execFormatBlock, extend, getHTML, getSelectionData, getSelectionElement, getSelectionHtml, getSelectionStart, getSelectionText, initialize, isElement, isListItemChild, isNode, nl2br, parentElements, preview, restoreSelection, saveSelection, selection, selectionRange, setSelectedRange, setTargetBlank, triggerAnchorAction, trim;
   selection = null;
   selectionRange = null;
   parentElements = ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'pre'];
@@ -29,6 +29,20 @@ var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; 
       one[k] = two[k];
     }
     return one;
+  };
+  isNode = function(o) {
+    if (typeof Node === "object") {
+      return o instanceof Node;
+    } else {
+      return o && typeof o === "object" && typeof o.nodeType === "number" && typeof o.nodeName === "string";
+    }
+  };
+  isElement = function(o) {
+    if (typeof HTMLElement === "object") {
+      return o instanceof HTMLElement;
+    } else {
+      return o && typeof o === "object" && o !== null && o.nodeType === 1 && typeof o.nodeName === "string";
+    }
   };
   saveSelection = function() {
     var i, len, ranges, sel;
@@ -668,7 +682,14 @@ var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; 
     if (!(this instanceof Taylor)) {
       return new Taylor(container, options);
     }
-    this._container = document.getElementById(container);
+    if (isElement(container)) {
+      this._container = container;
+    } else {
+      this._container = document.querySelector(container);
+    }
+    if (!this._container) {
+      throw new Error('Couldn\'t initialize Taylor, element not found!');
+    }
     this._HTML = trim(this._container.innerHTML);
     this._editable = null;
     this._buttons = [];

@@ -44,6 +44,19 @@
     # return object
     return one
 
+  isNode = (o) ->
+    if typeof Node is "object"
+      o instanceof Node
+    else
+      o and typeof o is "object" and typeof o.nodeType is "number" and typeof o.nodeName is "string"
+
+  #Returns true if it is a DOM element
+  isElement = (o) ->
+    if typeof HTMLElement is "object"
+      o instanceof HTMLElement
+    else
+      o and typeof o is "object" and o isnt null and o.nodeType is 1 and typeof o.nodeName is "string"
+
   # # # # # # # # # #
 
   saveSelection = () ->
@@ -757,7 +770,15 @@
       return new Taylor container, options
 
     # find element, bind to object
-    @_container = document.getElementById container
+    # @_container = document.getElementById container
+    if isElement container
+      @_container = container
+    else
+      @_container = document.querySelector container
+
+    if !@_container
+      throw new Error 'Couldn\'t initialize Taylor, element not found!'
+
     @_HTML = trim @_container.innerHTML
     @_editable = null
     @_buttons = []
