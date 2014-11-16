@@ -714,5 +714,12 @@ var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; 
       return textarea.value;
     }
   };
+  Taylor.prototype.clear = function() {
+    var editable, textarea;
+    editable = this._container.getElementsByClassName('taylor-editable')[0];
+    textarea = this._container.getElementsByClassName('taylor-textarea')[0];
+    editable.innerHTML = '';
+    return textarea.innerHTML = '';
+  };
   return window.Taylor = Taylor;
 })(window, document);

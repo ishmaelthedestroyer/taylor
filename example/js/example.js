@@ -12,7 +12,11 @@ window.onload = function() {
   // console.log(editor)
 
   document.getElementById('export-btn').addEventListener('click', function() {
-    var data = editor.export();
+    editor.export();
     console.log(data);
+  });
+
+  document.getElementById('clear-btn').addEventListener('click', function() {
+    editor.clear();
   });
 }

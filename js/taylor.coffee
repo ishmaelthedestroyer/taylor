@@ -811,6 +811,14 @@
     else
       return textarea.value
 
+  Taylor::clear = () ->
+    editable = @_container.getElementsByClassName('taylor-editable')[0]
+    textarea = @_container.getElementsByClassName('taylor-textarea')[0]
+
+    editable.innerHTML = ''
+    textarea.innerHTML = ''
+
+
   # # # # # # # # # # # # # # # # # # # #
   # # # # # # # # # # # # # # # # # # # #
 
