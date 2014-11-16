@@ -305,6 +305,7 @@ var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; 
     body.className += ' taylor-editable';
     body.setAttribute('data-taylor-editable', true);
     body.style.height = obj._options.height;
+    body.style.overflowY = 'auto';
     body.contentEditable = true;
     body.innerHTML = obj._HTML;
     obj._container.appendChild(body);

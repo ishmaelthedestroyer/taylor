@@ -362,6 +362,7 @@
     body.className += ' taylor-editable'
     body.setAttribute 'data-taylor-editable', true
     body.style.height = obj._options.height
+    body.style.overflowY = 'auto'
     body.contentEditable = true
     body.innerHTML = obj._HTML
 
