@@ -19,4 +19,4 @@ window.onload = function() {
   document.getElementById('clear-btn').addEventListener('click', function() {
     editor.clear();
   });
-}
+};
