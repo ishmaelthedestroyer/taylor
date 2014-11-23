@@ -365,6 +365,7 @@
     body.style.overflowY = 'auto'
     body.contentEditable = true
     body.innerHTML = obj._HTML
+    body.setAttribute 'placeholder', obj._options.placeholder
 
     obj._container.appendChild body
 
@@ -377,6 +378,7 @@
     textarea.className += ' taylor-textarea'
     textarea.style.height = obj._options.height
     textarea.style.display = 'none'
+    textarea.placeholder = obj._options.placeholder
 
     obj._container.appendChild textarea
 
@@ -690,7 +692,7 @@
     defaults =
       width: '100%'
       height: '500px'
-      placeholder: '...'
+      placeholder: ''
       anchorPlaceholder: 'Type a URL'
       buttons: [
         'bold'

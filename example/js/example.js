@@ -1,5 +1,6 @@
 window.onload = function() {
   var editor = new Taylor('#target', {
+    placeholder: 'This is placeholder text...',
     height: '1600px'
     // tools: []
     /*

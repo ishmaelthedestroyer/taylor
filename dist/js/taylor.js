@@ -308,6 +308,7 @@ var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; 
     body.style.overflowY = 'auto';
     body.contentEditable = true;
     body.innerHTML = obj._HTML;
+    body.setAttribute('placeholder', obj._options.placeholder);
     obj._container.appendChild(body);
     textarea = obj._editable = document.createElement('textarea');
     textarea.className = 'textarea';
@@ -315,6 +316,7 @@ var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; 
     textarea.className += ' taylor-textarea';
     textarea.style.height = obj._options.height;
     textarea.style.display = 'none';
+    textarea.placeholder = obj._options.placeholder;
     obj._container.appendChild(textarea);
     return obj;
   };
@@ -637,7 +639,7 @@ var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; 
     defaults = {
       width: '100%',
       height: '500px',
-      placeholder: '...',
+      placeholder: '',
       anchorPlaceholder: 'Type a URL',
       buttons: ['bold', 'italic', 'underline', 'strikethrough', 'h', 'orderedlist', 'unorderedlist', 'blockquote', 'pre', 'anchor', 'image'],
       tools: ['preview'],

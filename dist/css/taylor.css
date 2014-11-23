@@ -43,3 +43,12 @@
   overflow-x: hidden;
   overflow-y: auto;
 }
+
+[contenteditable=true]:empty:before {
+  display: block;
+  content: attr(placeholder);
+}
+
+.taylor-editor .navbar-nav > li {
+  float: left !important;
+}
