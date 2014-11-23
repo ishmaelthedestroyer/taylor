@@ -564,8 +564,17 @@
   # # # # # # # # # #
 
   bindButtons = (obj, buttons) ->
+    if obj._options.override
+      overrides = Object.keys obj._options.override
+    else
+      overrides = []
+
     for btn in buttons
       ((btn) ->
+        if overrides.indexOf(btn.name) > -1
+          btn.element.addEventListener 'click', obj._options.override[btn.name], false
+          return false
+
         btn.element.addEventListener 'click', (e) ->
           # prevent default events
           e.preventDefault()

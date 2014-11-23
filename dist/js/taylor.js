@@ -505,8 +505,17 @@ var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; 
     return elements;
   };
   bindButtons = function(obj, buttons) {
-    var btn, _fn, _i, _len;
+    var btn, overrides, _fn, _i, _len;
+    if (obj._options.override) {
+      overrides = Object.keys(obj._options.override);
+    } else {
+      overrides = [];
+    }
     _fn = function(btn) {
+      if (overrides.indexOf(btn.name) > -1) {
+        btn.element.addEventListener('click', obj._options.override[btn.name], false);
+        return false;
+      }
       return btn.element.addEventListener('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
