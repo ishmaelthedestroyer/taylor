@@ -1,12 +1,15 @@
 window.onload = function() {
   var editor = new Taylor('#target', {
     placeholder: 'This is placeholder text...',
-    height: '1600px',
+    height: '1600px'
+    /*
+    ,
     override: {
       image: function() {
         alert('boom');
       }
     }
+    */
     // tools: []
     /*
     onLoad: function(taylor, options) {
