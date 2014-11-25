@@ -739,5 +739,12 @@ var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; 
     editable.innerHTML = text;
     return textarea.innerHTML = text;
   };
+  Taylor.prototype.insert = function(text) {
+    var editable, textarea;
+    editable = this._container.getElementsByClassName('taylor-editable')[0];
+    textarea = this._container.getElementsByClassName('taylor-textarea')[0];
+    editable.innerHTML = editable.innerHTML + text;
+    return textarea.innerHTML = editable.innerHTML + text;
+  };
   return window.Taylor = Taylor;
 })(window, document);

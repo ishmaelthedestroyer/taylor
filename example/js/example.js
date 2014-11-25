@@ -25,6 +25,10 @@ window.onload = function() {
     console.log(data);
   });
 
+  document.getElementById('insert-btn').addEventListener('click', function() {
+    editor.insert('<img src="https://i.imgur.com/tZ68b9F.jpg" />');
+  });
+
   document.getElementById('clear-btn').addEventListener('click', function() {
     editor.clear();
   });

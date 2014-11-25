@@ -836,6 +836,13 @@
     editable.innerHTML = text
     textarea.innerHTML = text
 
+  Taylor::insert = (text) ->
+    editable = @_container.getElementsByClassName('taylor-editable')[0]
+    textarea = @_container.getElementsByClassName('taylor-textarea')[0]
+
+    editable.innerHTML = editable.innerHTML + text
+    textarea.innerHTML = textarea.innerHTML + text
+
   # # # # # # # # # # # # # # # # # # # #
   # # # # # # # # # # # # # # # # # # # #
 
