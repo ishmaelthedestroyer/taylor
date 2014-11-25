@@ -2,7 +2,7 @@ var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; 
 
 (function(window, document) {
   'use strict';
-  var Taylor, bindButtons, bindFormatting, bindPaste, bindReturn, bindSelect, bindTab, bindTools, br2nl, checkSelection, checkSelectionElement, createButtons, createElements, createTools, execFormatBlock, extend, getHTML, getSelectionData, getSelectionElement, getSelectionHtml, getSelectionStart, getSelectionText, initialize, isElement, isListItemChild, isNode, nl2br, parentElements, preview, restoreSelection, saveSelection, selection, selectionRange, setSelectedRange, setTargetBlank, triggerAnchorAction, trim;
+  var Taylor, bindButtons, bindFormatting, bindPaste, bindReturn, bindSelect, bindTab, bindTools, br2nl, checkSelection, checkSelectionElement, createButtons, createElements, createTools, execFormatBlock, extend, getSelectionData, getSelectionElement, getSelectionHtml, getSelectionStart, getSelectionText, initialize, isElement, isListItemChild, isNode, nl2br, parentElements, preview, restoreSelection, saveSelection, selection, selectionRange, setSelectedRange, setTargetBlank, triggerAnchorAction, trim;
   selection = null;
   selectionRange = null;
   parentElements = ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'pre'];
@@ -160,16 +160,26 @@ var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; 
     return checkSelectionElement(newSelection, selectionElement);
   };
   checkSelectionElement = function(newSelection, selectionElement) {
-    selection = newSelection;
-    selectionRange = selection.getRangeAt(0);
+    var e;
+    try {
+      selection = newSelection;
+      selectionRange = selection.getRangeAt(0);
+    } catch (_error) {
+      e = _error;
+    }
   };
   getSelectionElement = function() {
-    var current, err, getMediumElement, parent, range, result;
-    selection = window.getSelection();
-    range = selection.getRangeAt(0);
-    current = range.commonAncestorContainer;
-    parent = current.parentNode;
-    result = null;
+    var current, e, err, getMediumElement, parent, range, result;
+    try {
+      selection = window.getSelection();
+      range = selection.getRangeAt(0);
+      current = range.commonAncestorContainer;
+      parent = current.parentNode;
+      result = null;
+    } catch (_error) {
+      e = _error;
+      return null;
+    }
     getMediumElement = function(e) {
       var err;
       parent = e;
@@ -270,7 +280,7 @@ var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; 
     tools.className += ' navbar-right';
     tools.className += ' taylor-tools';
     heading.appendChild(tools);
-    obj._buttons = createButtons(controls, obj._options.buttons);
+    obj._buttons = createButtons(obj, controls);
     obj._tools = createTools(tools, obj._options.tools);
     clear = document.createElement('div');
     clear.style.clear = 'both';
@@ -310,7 +320,7 @@ var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; 
     body.innerHTML = obj._HTML;
     body.setAttribute('placeholder', obj._options.placeholder);
     obj._container.appendChild(body);
-    textarea = obj._editable = document.createElement('textarea');
+    textarea = obj._textarea = document.createElement('textarea');
     textarea.className = 'textarea';
     textarea.className += ' form-control';
     textarea.className += ' taylor-textarea';
@@ -320,8 +330,9 @@ var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; 
     obj._container.appendChild(textarea);
     return obj;
   };
-  createButtons = function(parent, buttons) {
-    var createButton, elements, k, keys, templates, _i, _len;
+  createButtons = function(obj, parent) {
+    var buttons, control, createButton, elements, k, key, keys, override, templates, value, _i, _len, _ref;
+    buttons = obj._options.buttons;
     templates = {
       bold: {
         name: 'bold',
@@ -437,11 +448,21 @@ var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; 
         content: ''
       }
     };
+    if (obj._options.templates) {
+      _ref = obj._options.templates;
+      for (control in _ref) {
+        override = _ref[control];
+        for (key in override) {
+          value = override[key];
+          templates[control][key] = value;
+        }
+      }
+    }
     elements = [];
     keys = Object.keys(templates);
     createButton = function(template) {
-      var btn, li, span, _ref;
-      if (!(_ref = template.name, __indexOf.call(keys, _ref) >= 0)) {
+      var btn, li, span, _ref1;
+      if (!(_ref1 = template.name, __indexOf.call(keys, _ref1) >= 0)) {
         throw new Error('That button type does not exist!');
       }
       li = document.createElement('li');
@@ -688,7 +709,6 @@ var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; 
       return previewIcon.classList.remove('fa-eye-slash');
     }
   };
-  getHTML = function(obj) {};
   Taylor = function(container, options) {
     var editable;
     if (!(this instanceof Taylor)) {
@@ -704,6 +724,7 @@ var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; 
     }
     this._HTML = trim(this._container.innerHTML);
     this._editable = null;
+    this._textarea = null;
     this._buttons = [];
     if (!this._HTML.length) {
       this._HTML = '<p></p>';
@@ -744,7 +765,95 @@ var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; 
     editable = this._container.getElementsByClassName('taylor-editable')[0];
     textarea = this._container.getElementsByClassName('taylor-textarea')[0];
     editable.innerHTML = editable.innerHTML + text;
-    return textarea.innerHTML = editable.innerHTML + text;
+    return textarea.innerHTML = textarea.innerHTML + text;
+  };
+  Taylor.prototype.getSelectionStart = function() {
+    return selection;
+  };
+  Taylor.prototype.isFocused = function() {
+    var elementContainsSelection, isOrContains;
+    isOrContains = function(node, container) {
+      while (node) {
+        if (node === container) {
+          return true;
+        }
+        node = node.parentNode;
+      }
+      return false;
+    };
+    elementContainsSelection = function(el) {
+      var e, i, sel;
+      sel = void 0;
+      if (window.getSelection) {
+        sel = window.getSelection();
+        try {
+          if (sel.rangeCount > 0) {
+            i = 0;
+            while (i < sel.rangeCount) {
+              if (!isOrContains(sel.getRangeAt(i).commonAncestorContainer, el)) {
+                return false;
+              }
+              ++i;
+            }
+            return true;
+          }
+        } catch (_error) {
+          e = _error;
+          return false;
+        }
+      } else {
+        if ((sel = document.selection) && sel.type !== "Control") {
+          return isOrContains(sel.createRange().parentElement(), el);
+        }
+      }
+      return false;
+    };
+    return elementContainsSelection(this._editable || elementContainsSelection(this._textarea));
+  };
+  /*
+  Taylor::setCursor = (position) ->
+    position = 0 if !position
+  
+    if @_editable.style.display isnt 'none'
+      elem = @_editable
+    else
+      elem = @_textarea
+  
+    if elem.setSelectionRange
+      elem.focus()
+      elem.setSelectionRange 0, 0
+    else if elem.createTextRange
+      range = elem.createTextRange()
+      range.moveStart "character", 0
+      range.select()
+    else
+      elem.focus()
+  */
+
+  Taylor.prototype.focus = function() {
+    var placeCaretAtEnd;
+    placeCaretAtEnd = function(el) {
+      var range, sel, textRange;
+      el.focus();
+      if (typeof window.getSelection !== "undefined" && typeof document.createRange !== "undefined") {
+        range = document.createRange();
+        range.selectNodeContents(el);
+        range.collapse(false);
+        sel = window.getSelection();
+        sel.removeAllRanges();
+        return sel.addRange(range);
+      } else if (typeof document.body.createTextRange !== "undefined") {
+        textRange = document.body.createTextRange();
+        textRange.moveToElementText(el);
+        textRange.collapse(false);
+        return textRange.select();
+      }
+    };
+    if (this._editable.style.display !== 'none') {
+      return placeCaretAtEnd(this._editable);
+    } else {
+      return placeCaretAtEnd(this._textarea);
+    }
   };
   return window.Taylor = Taylor;
 })(window, document);

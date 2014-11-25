@@ -184,19 +184,24 @@
   # # # # # # # # # #
 
   checkSelectionElement = (newSelection, selectionElement) ->
-    selection = newSelection
-    selectionRange = selection.getRangeAt 0
+    try
+      selection = newSelection
+      selectionRange = selection.getRangeAt 0
+    catch e
 
     return
 
   # # # # # # # # # #
 
   getSelectionElement = () ->
-    selection = window.getSelection()
-    range = selection.getRangeAt 0
-    current = range.commonAncestorContainer
-    parent = current.parentNode
-    result = null
+    try
+      selection = window.getSelection()
+      range = selection.getRangeAt 0
+      current = range.commonAncestorContainer
+      parent = current.parentNode
+      result = null
+    catch e
+      return null
 
     getMediumElement = (e) ->
       parent = e
@@ -316,7 +321,8 @@
     # # # # #
 
     # create buttons and insert into heading
-    obj._buttons = createButtons controls, obj._options.buttons
+    # obj._buttons = c controls, obj._options.buttons
+    obj._buttons = createButtons obj, controls
 
     # create tools and insert into heading
     obj._tools = createTools tools, obj._options.tools
@@ -372,7 +378,7 @@
     # # # # #
 
     # add panel body
-    textarea = obj._editable = document.createElement 'textarea'
+    textarea = obj._textarea = document.createElement 'textarea'
     textarea.className = 'textarea'
     textarea.className += ' form-control'
     textarea.className += ' taylor-textarea'
@@ -388,7 +394,12 @@
 
   # # # # # # # # # #
 
-  createButtons = (parent, buttons) ->
+  # createButtons = (parent, buttons) ->
+  createButtons = (obj, parent) ->
+    # obj._buttons = createButtons controls, obj._options.buttons
+    # obj._buttons = createButtons obj, controls
+    buttons = obj._options.buttons
+
     templates =
       bold:
         name: 'bold'
@@ -486,6 +497,12 @@
         element: 'img'
         class: 'fa fa-picture-o'
         content: ''
+
+    # merge user-supplied templates
+    if obj._options.templates
+      for control, override of obj._options.templates
+        for key, value of override
+          templates[control][key] = value
 
     elements = []
 
@@ -767,15 +784,10 @@
       previewIcon.classList.add 'fa-eye'
       previewIcon.classList.remove 'fa-eye-slash'
 
-  # # # # # # # # # #
+  # # # # # # # # # # # # # # # # # # # #
+  # # # # # # # # # # # # # # # # # # # #
 
-  getHTML = (obj) ->
-
-
-    # # # # # # # # # # # # # # # # # # # #
-    # # # # # # # # # # # # # # # # # # # #
-
-    # Taylor Editor
+  # Taylor Editor
 
   Taylor = (container, options) ->
     if !(@ instanceof Taylor)
@@ -793,6 +805,7 @@
 
     @_HTML = trim @_container.innerHTML
     @_editable = null
+    @_textarea = null
     @_buttons = []
 
     # set empty paragraph tags if empty container
@@ -842,6 +855,79 @@
 
     editable.innerHTML = editable.innerHTML + text
     textarea.innerHTML = textarea.innerHTML + text
+
+  Taylor::getSelectionStart = () ->
+    return selection
+
+  Taylor::isFocused = () ->
+    isOrContains = (node, container) ->
+      while node
+        return true if node is container
+        node = node.parentNode
+      return false
+
+    elementContainsSelection = (el) ->
+      sel = undefined
+      if window.getSelection
+        sel = window.getSelection()
+        try
+          if sel.rangeCount > 0
+            i = 0
+
+            while i < sel.rangeCount
+              return false  unless isOrContains(sel.getRangeAt(i).commonAncestorContainer, el)
+              ++i
+            return true
+        catch e
+          return false
+      else
+        if (sel = document.selection) and sel.type isnt "Control"
+          return isOrContains(sel.createRange().parentElement(), el)
+
+      return false
+
+    return elementContainsSelection @_editable || elementContainsSelection @_textarea
+
+  ###
+  Taylor::setCursor = (position) ->
+    position = 0 if !position
+
+    if @_editable.style.display isnt 'none'
+      elem = @_editable
+    else
+      elem = @_textarea
+
+    if elem.setSelectionRange
+      elem.focus()
+      elem.setSelectionRange 0, 0
+    else if elem.createTextRange
+      range = elem.createTextRange()
+      range.moveStart "character", 0
+      range.select()
+    else
+      elem.focus()
+  ###
+
+  Taylor::focus = () ->
+    placeCaretAtEnd = (el) ->
+      el.focus()
+      if typeof window.getSelection isnt "undefined" and typeof document.createRange isnt "undefined"
+        range = document.createRange()
+        range.selectNodeContents el
+        range.collapse false
+        sel = window.getSelection()
+        sel.removeAllRanges()
+        sel.addRange range
+      else unless typeof document.body.createTextRange is "undefined"
+        textRange = document.body.createTextRange()
+        textRange.moveToElementText el
+        textRange.collapse false
+        textRange.select()
+
+    if @_editable.style.display isnt 'none'
+      placeCaretAtEnd @_editable
+    else
+      placeCaretAtEnd @_textarea
 
   # # # # # # # # # # # # # # # # # # # #
   # # # # # # # # # # # # # # # # # # # #
