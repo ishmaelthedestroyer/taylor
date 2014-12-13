@@ -234,10 +234,17 @@ var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; 
     return document.execCommand('formatBlock', false, type);
   };
   triggerAnchorAction = function(targetBlank) {
+    var html, innerText, link;
     if (selection.anchorNode.parentNode.tagName.toLowerCase() === 'a') {
       return document.execCommand('unlink', false, null);
     } else {
-      document.execCommand('createLink', false, getSelectionText());
+      link = prompt('Please enter the url you want to link to.', 'http://');
+      if (link.toLowerCase().indexOf('http') === -1) {
+        link = 'http://' + link;
+      }
+      innerText = getSelectionText();
+      html = '<a href="' + link + '">' + innerText + '</a>';
+      document.execCommand('insertHTML', false, html);
       if (targetBlank) {
         return setTargetBlank();
       }

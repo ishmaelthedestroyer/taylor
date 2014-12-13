@@ -311,7 +311,7 @@ module.exports = function(grunt) {
           banner: '/* <%= meta %> '
         },
         files: {
-          '<%= dir.dist %>assets/js/app.min.js': ['<%= dir.dist %>']
+          '<%= dir.dist %>js/taylor.min.js': ['<%= dist.client %>']
         }
       }
     },
@@ -371,7 +371,7 @@ module.exports = function(grunt) {
   grunt.registerTask('build:client', ['clean:client', 'clean:html', 'coffeelint:client', 'coffee:client', 'coffeecup', 'clean:tmp', 'mkdir:tmp']);
   grunt.registerTask('build:css', ['clean:css', 'recess:app']);
   grunt.registerTask('build:assets', ['clean:assets', 'copy:vendor', 'copy:img', 'copy:favicon']);
-  grunt.registerTask('build', ['clean:tmp', 'clean:dist', 'todos', 'build:server', 'build:client', 'build:css', 'build:assets', 'clean:tmp', 'mkdir:tmp']);
+  grunt.registerTask('build', ['clean:tmp', 'clean:dist', 'todos', 'build:server', 'build:client', 'build:css', 'build:assets', 'uglify', 'clean:tmp', 'mkdir:tmp']);
   return grunt.registerTask('build:prod', ['build', 'changelog', 'bump']);
   /*
   grunt.registerTask 'lint', [

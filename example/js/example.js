@@ -44,6 +44,8 @@ window.onload = function() {
             continue;
           }
 
+          console.log('Adding file.', f);
+
           var reader = new FileReader();
           reader.onload = (function(theFile) {
             return function(e) {

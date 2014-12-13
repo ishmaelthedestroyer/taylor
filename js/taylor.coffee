@@ -261,7 +261,14 @@
     if selection.anchorNode.parentNode.tagName.toLowerCase() is 'a'
       document.execCommand 'unlink', false, null
     else
-      document.execCommand 'createLink', false, getSelectionText()
+      link = prompt 'Please enter the url you want to link to.', 'http://'
+      (link = 'http://' + link) if link.toLowerCase().indexOf('http') == -1
+
+      innerText = getSelectionText()
+      html = '<a href="' + link + '">' + innerText + '</a>'
+
+      # document.execCommand 'createLink', false, html # getSelectionText()
+      document.execCommand 'insertHTML', false, html # getSelectionText()
       setTargetBlank() if targetBlank
 
   # # # # # # # # # #

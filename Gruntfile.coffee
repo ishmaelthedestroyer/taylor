@@ -361,8 +361,8 @@ module.exports = (grunt) ->
         options:
           banner: '/* <%= meta %> '
         files:
-          '<%= dir.dist %>assets/js/app.min.js': [
-            '<%= dir.dist %>'
+          '<%= dir.dist %>js/taylor.min.js': [
+            '<%= dist.client %>'
           ]
 
     # lint *.js files
@@ -472,6 +472,8 @@ module.exports = (grunt) ->
     'build:client'
     'build:css'
     'build:assets'
+
+    'uglify'
 
     'clean:tmp'
     'mkdir:tmp'
